@@ -1,0 +1,3 @@
+# Adapters
+
+## This will be as the adapter layer of the project which should be the implementation of the interfaces that has been stated in the (ports) layer of the project so we may have different implementation for the same interface which means we can use different frameworks, packages, logics or even for production and testing isolation implementations so this give us a very amazing freedom moving on with the project and give us the ability to replace any part of the system with a different implementation without breaking anything (hopefully 😁) since we are complying to the same interface 😊

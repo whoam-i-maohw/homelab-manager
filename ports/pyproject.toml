@@ -1,0 +1,24 @@
+[project]
+name = "ports"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Abdulrahman Mazhar",email = "whoamimaohw.career@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "ports", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.7"
+black = "^25.1.0"
+ipykernel = "^6.30.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
