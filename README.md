@@ -24,6 +24,7 @@ make health-check
 
 - [ ] Video
   - [ ] Video Downloader
+    - [ ] YouTube Video
   - [ ] Video's Metadata Persistence
   - [ ] Video Tags Generation
   - [ ] Video Transcribe Generation
