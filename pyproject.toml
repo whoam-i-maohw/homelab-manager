@@ -1,0 +1,26 @@
+[project]
+name = "homelab-manager"
+version = "0.1.0"
+description = "Homelab Manager project to manage different things on my homelab server(s)"
+authors = [
+    {name = "Abdulrahman Mazhar",email = "whoamimaohw.career@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+packages = [
+    {include = "src", from = "domain"},
+    {include = "src", from = "ports"},
+    {include = "src", from = "adapters"},
+    {include = "src", from = "services"},
+    {include = "src", from = "external_systems"},
+]
