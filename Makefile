@@ -15,10 +15,10 @@ update: ## Update the project dependencies
 
 lint: ## Lint the project
 	@echo "Linting the project"
-	@poetry run ruff check domain ports adapters services external_systems --config ruff.toml
+	@poetry run ruff check src --config ruff.toml
 
 test-coverage: ## Test-Coverage the project
 	@echo "Running test-coverage for the project ..."
-	@poetry run coverage run -m pytest domain/tests ports/tests adapters/tests services/tests external_systems/tests -vv
+	@poetry run coverage run -m pytest tests -vv
 	@poetry run coverage report -m
 	@poetry run coverage html

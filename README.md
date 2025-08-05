@@ -23,8 +23,8 @@ make health-check
 # Project's Features
 
 - [ ] Video
-  - [ ] Video Downloader
-    - [ ] YouTube Video
+  - [x] Video Downloader
+    - [x] YouTube Video
   - [ ] Video's Metadata Persistence
   - [ ] Video Tags Generation
   - [ ] Video Transcribe Generation

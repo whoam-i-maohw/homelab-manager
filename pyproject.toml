@@ -8,6 +8,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "yt-dlp (>=2025.7.21,<2026.0.0)"
 ]
 
 
@@ -18,9 +19,29 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [
-    {include = "src", from = "domain"},
-    {include = "src", from = "ports"},
-    {include = "src", from = "adapters"},
-    {include = "src", from = "services"},
-    {include = "src", from = "external_systems"},
+    {include = "src", from = "."}
+]
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.7"
+black = "^25.1.0"
+ipykernel = "^6.30.1"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.1"
+coverage = "^7.10.2"
+
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
 ]
