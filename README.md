@@ -25,6 +25,8 @@ make health-check
 - [ ] Video
   - [x] Video Downloader
     - [x] YouTube Video
+      - [x] Download a YouTube video to a specific directory
+      - [x] Download a YouTube video to a directory of the video's channel name inside a base-directory
   - [ ] Video's Metadata Persistence
   - [ ] Video Tags Generation
   - [ ] Video Transcribe Generation
