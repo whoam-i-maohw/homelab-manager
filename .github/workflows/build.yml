@@ -33,7 +33,7 @@ jobs:
         run: make lint
 
       - name: Create cookies.txt
-        run: echo ${{ secrets.YT_COOKIES_PART_1 }} > /tmp/cookies.txt && echo ${{ secrets.YT_COOKIES_PART_2 }} >> /tmp/cookies.txt
+        run: echo "${{ secrets.YT_COOKIES_PART_1 }}" > /tmp/cookies.txt && echo "${{ secrets.YT_COOKIES_PART_2 }}" >> /tmp/cookies.txt
 
       - name: Run tests
         run: BROWSER_COOKIE_PATH=/tmp/cookies.txt make test-coverage
