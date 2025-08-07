@@ -70,7 +70,7 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
             noprogress=True,
             consoletitle=True,
             extractor_retries=0,
-            extractor_args={"youtube": {"skip": ["authcheck"]}},
+            extractor_args={"youtubetab": {"skip": ["authcheck"]}},
         )
 
         if cookies_file_path is not None:
