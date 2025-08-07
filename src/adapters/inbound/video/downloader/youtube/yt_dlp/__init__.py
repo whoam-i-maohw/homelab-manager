@@ -69,7 +69,7 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
             noprogress=True,
             consoletitle=True,
             extractor_retries=0,
-            cookiesfrombrowser="chrome",
+            cookiesfrombrowser=("chrome",),
         )
 
         with YoutubeDL(download_options) as yt:
