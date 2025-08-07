@@ -16,9 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -36,7 +33,7 @@ jobs:
         run: make lint
 
       - name: Create cookies.txt
-        run: echo "${{ secrets.YT_COOKIES_PART_1 }}" > /tmp/cookies.txt && "${{ secrets.YT_COOKIES_PART_2 }}" >> /tmp/cookies.txt
+        run: echo ${{ secrets.YT_COOKIES_PART_1 }} > /tmp/cookies.txt && echo ${{ secrets.YT_COOKIES_PART_2 }} >> /tmp/cookies.txt
 
       - name: Run tests
         run: BROWSER_COOKIE_PATH=/tmp/cookies.txt make test-coverage
