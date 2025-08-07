@@ -36,6 +36,6 @@ jobs:
         run: echo "${{ secrets.YT_COOKIES_PART_1 }}" > /tmp/cookies.txt && echo "${{ secrets.YT_COOKIES_PART_2 }}" >> /tmp/cookies.txt
 
       - name: Testing yt-dlp in isolation
-        run: poetry run yt-dlp --cookies /tmp/cookies.txt --extractor-args "youtubetab:skip=authcheck" https://www.youtube.com/channel/UCHDm-DKoMyJxKVgwGmuTaQA
+        run: poetry run yt-dlp --cookies /tmp/cookies.txt --extractor-args "youtubetab:skip=authcheck" https://www.youtube.com/watch?v=C0DPdy98e4c
       - name: Run tests
         run: BROWSER_COOKIE_PATH=/tmp/cookies.txt make test-coverage
