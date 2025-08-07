@@ -1,0 +1,36 @@
+name: Building Project
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          poetry-version: 2.1.2
+
+      - name: Setup the project
+        run: make setup && make update
+
+      - name: Linting the project
+        run: make lint
+
+      - name: Run tests
+        run: make test-coverage
