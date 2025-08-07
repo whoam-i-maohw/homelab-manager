@@ -30,6 +30,7 @@ class VideoDownloaderService:
             "ا": "ا",
             "أ": "ا",
         },
+        cookies_file_path: str | None = None,
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
         on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
     ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
@@ -43,6 +44,7 @@ class VideoDownloaderService:
             download_path=download_root_path,
             retry_attempts=retry_attempts,
             retry_timeout=retry_timeout,
+            cookies_file_path=cookies_file_path,
             on_progress_callback=on_progress_callback,
             on_complete_callback=on_complete_callback,
         )
@@ -124,6 +126,7 @@ class VideoDownloaderService:
         url: str,
         resolution: int = 1080,
         download_path: str,
+        cookies_file_path: str | None = None,
         retry_attempts: int = 3,
         retry_timeout: int = 3,
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
@@ -133,6 +136,7 @@ class VideoDownloaderService:
             url=url,
             download_path=download_path,
             resolution=resolution,
+            cookies_file_path=cookies_file_path,
             on_progress_callback=on_progress_callback,
             on_complete_callback=on_complete_callback,
         )
@@ -151,6 +155,7 @@ class VideoDownloaderService:
                         url=url,
                         resolution=resolution,
                         download_path=download_path,
+                        cookies_file_path=cookies_file_path,
                         on_progress_callback=on_progress_callback,
                         on_complete_callback=on_complete_callback,
                         retry_attempts=retry_attempts - 1,

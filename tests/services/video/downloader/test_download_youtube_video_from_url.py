@@ -12,9 +12,17 @@ from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
 )
 from src.services.video.downloader import VideoDownloaderService
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
+import pytest
 
 
-def test_download_youtube_video_from_url_happy_path():
+@pytest.fixture()
+def browser_cookie_path():
+    yield os.environ.get("BROWSER_COOKIE_PATH", None)
+
+
+def test_download_youtube_video_from_url_happy_path(
+    browser_cookie_path: str | None,
+) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -26,6 +34,7 @@ def test_download_youtube_video_from_url_happy_path():
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=1,
@@ -71,7 +80,9 @@ def test_download_youtube_video_from_url_happy_path():
     assert download_result == expected
 
 
-def test_download_youtube_video_from_url_with_retry_attempts(capsys: CaptureFixture):
+def test_download_youtube_video_from_url_with_retry_attempts(
+    capsys: CaptureFixture, browser_cookie_path: str | None
+) -> None:
     url: str = "https://www.youtube.com/watch?v=invalid_video"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -84,6 +95,7 @@ def test_download_youtube_video_from_url_with_retry_attempts(capsys: CaptureFixt
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=retry_attempts,
@@ -106,7 +118,9 @@ def test_download_youtube_video_from_url_with_retry_attempts(capsys: CaptureFixt
     assert download_result == expected
 
 
-def test_download_youtube_video_from_url_with_retry_timeout(capsys: CaptureFixture):
+def test_download_youtube_video_from_url_with_retry_timeout(
+    capsys: CaptureFixture, browser_cookie_path: str | None
+) -> None:
     url: str = "https://www.youtube.com/watch?v=invalid_video"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -119,6 +133,7 @@ def test_download_youtube_video_from_url_with_retry_timeout(capsys: CaptureFixtu
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=1,

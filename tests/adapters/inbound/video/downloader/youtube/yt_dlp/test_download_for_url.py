@@ -1,6 +1,5 @@
 import datetime
 import os
-from typing import Any
 from unittest.mock import patch
 from tempfile import gettempdir
 
@@ -9,9 +8,15 @@ from src.domain.entity.video.youtube import DownloadedYouTubeVideo
 from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
+import pytest
 
 
-def test_download_test_youtube_short_video():
+@pytest.fixture()
+def browser_cookie_path():
+    yield os.environ.get("BROWSER_COOKIE_PATH", None)
+
+
+def test_download_test_youtube_short_video(browser_cookie_path: str | None) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -21,6 +26,7 @@ def test_download_test_youtube_short_video():
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
     )
@@ -65,7 +71,7 @@ def test_download_test_youtube_short_video():
 
 
 @patch("urllib.request.Request", side_effect=Exception("No internet connection"))
-def test_no_internet_connection(mock_socket):
+def test_no_internet_connection(mock_socket, browser_cookie_path: str | None) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -75,6 +81,7 @@ def test_no_internet_connection(mock_socket):
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
     )
@@ -90,7 +97,7 @@ def test_no_internet_connection(mock_socket):
     assert download_result == expected
 
 
-def test_invalid_url_video():
+def test_invalid_url_video(browser_cookie_path: str | None) -> None:
     url: str = "https://www.youtube.com/invalid_video_url"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -100,6 +107,7 @@ def test_invalid_url_video():
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
     )
@@ -115,7 +123,7 @@ def test_invalid_url_video():
     assert download_result == expected
 
 
-def test_invalid_download_path():
+def test_invalid_download_path(browser_cookie_path: str | None) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = "/invalid"
     resolution: int = 144
@@ -125,6 +133,7 @@ def test_invalid_download_path():
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
     )
@@ -140,7 +149,7 @@ def test_invalid_download_path():
     assert download_result == expected
 
 
-def test_invalid_video_resolution():
+def test_invalid_video_resolution(browser_cookie_path: str | None) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = gettempdir()
     resolution: int = 0
@@ -150,6 +159,7 @@ def test_invalid_video_resolution():
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
     )

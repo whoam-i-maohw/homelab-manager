@@ -21,6 +21,7 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
         url: str,
         resolution: int = 1080,
         download_path: str,
+        cookies_file_path: str | None = None,
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
         on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
     ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
@@ -69,8 +70,10 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
             noprogress=True,
             consoletitle=True,
             extractor_retries=0,
-            cookiesfrombrowser=("chrome",),
         )
+
+        if cookies_file_path is not None:
+            download_options.update(dict(cookiefile=cookies_file_path))
 
         with YoutubeDL(download_options) as yt:
             try:

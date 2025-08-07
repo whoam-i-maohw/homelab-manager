@@ -8,9 +8,17 @@ from src.services.video.downloader import VideoDownloaderService
 from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
+import pytest
 
 
-def test_download_youtube_video_from_url_to_channel_name_dir_happy_path():
+@pytest.fixture()
+def browser_cookie_path():
+    yield os.environ.get("BROWSER_COOKIE_PATH", None)
+
+
+def test_download_youtube_video_from_url_to_channel_name_dir_happy_path(
+    browser_cookie_path: str | None,
+) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_root_path: str = gettempdir()
     resolution: int = 144
@@ -22,6 +30,7 @@ def test_download_youtube_video_from_url_to_channel_name_dir_happy_path():
         url=url,
         download_root_path=download_root_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=0,
@@ -69,7 +78,9 @@ def test_download_youtube_video_from_url_to_channel_name_dir_happy_path():
     assert download_result == expected
 
 
-def test_download_youtube_video_from_url_to_channel_name_dir_invalid_directory_path():
+def test_download_youtube_video_from_url_to_channel_name_dir_invalid_directory_path(
+    browser_cookie_path: str | None,
+) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = "/"
     resolution: int = 144
@@ -81,6 +92,7 @@ def test_download_youtube_video_from_url_to_channel_name_dir_invalid_directory_p
         url=url,
         download_root_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=0,
