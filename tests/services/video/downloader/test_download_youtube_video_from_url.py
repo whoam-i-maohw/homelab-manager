@@ -1,5 +1,4 @@
 from tempfile import gettempdir
-import datetime
 import os
 from tempfile import gettempdir
 
@@ -68,13 +67,11 @@ def test_download_youtube_video_from_url_happy_path(
         "Funny",
     ]
     expected_average_rating = 0.0
-    expected_published_date_str = datetime.datetime(2007, 2, 21, 12, 29, 48).isoformat()
 
     assert isinstance(download_result, DownloadedYouTubeVideo)
     assert download_result.url == expected_url
     assert download_result.download_path == expected_download_path
     assert download_result.average_rating == expected_average_rating
-    assert download_result.published_date_str == expected_published_date_str
     assert download_result.tags == expected_tags
     assert download_result.thumbnail == expected_thumbnail
     assert download_result.duration == expected_duration

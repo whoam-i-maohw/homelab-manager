@@ -1,4 +1,3 @@
-import datetime
 import os
 from unittest.mock import patch
 from tempfile import gettempdir

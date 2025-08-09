@@ -1,4 +1,3 @@
-import datetime
 import os
 from tempfile import gettempdir
 
