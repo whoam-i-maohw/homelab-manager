@@ -61,7 +61,12 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                 )
 
         download_options: dict[str, Any] = dict(
-            format=f"bv*[height<={resolution}]+ba",
+            format=(
+                f"bv*[height={resolution}]+ba/"  # 1️⃣ exact match
+                f"bv*[height>={resolution}]+ba/"  # 2️⃣ nearest higher
+                f"bv*[height<={resolution}]+ba/"  # 3️⃣ nearest lower
+                "best"  # 4️⃣ default (best) -- will be used for SABR streaming clients
+            ),
             progress_hooks=[__on_progress_hook],
             postprocessor_hooks=[],
             paths=dict(home=download_path),
@@ -125,8 +130,6 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                     error_message = f"This url [{url}] doesn't exist !"
                 elif "Failed to extract any player response" in str(ex):
                     error_message = "There is no internet connectivity !"
-                elif "Requested format is not available" in str(ex):
-                    error_message = f"This video resolution [{resolution}P] is not available for this video !"
 
                 return DownloadingYouTubeVideoError(
                     error=error_message,

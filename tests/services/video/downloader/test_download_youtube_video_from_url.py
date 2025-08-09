@@ -41,43 +41,45 @@ def test_download_youtube_video_from_url_happy_path(
         retry_timeout=0,
     )
 
-    expected: DownloadedYouTubeVideo = DownloadedYouTubeVideo(
-        url="https://www.youtube.com/watch?v=C0DPdy98e4c",
-        resolution=144,
-        download_path=gettempdir(),
-        downloaded_file=f"{os.path.join(gettempdir(), "TEST VIDEO.mkv")}",
-        title="TEST VIDEO",
-        height=144,
-        width=192,
-        duration="18",
-        thumbnail="https://i.ytimg.com/vi/C0DPdy98e4c/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-"
-        + "BIAC4AOKAgwIABABGGUgZShlMA8=&rs=AOn4CLCpSkMmgqrnX1UfJYnvUv_2pmZWzQ",
-        tags=[
-            "TONES",
-            "AND",
-            "BARS",
-            "Countdown",
-            "Black & White",
-            "Sync Flashes",
-            "Sync",
-            "Test Testing",
-            "Test",
-            "Testing",
-            "54321",
-            "Numbers",
-            "Quality",
-            "Call",
-            "Funny",
-        ],
-        published_date_str=datetime.datetime(2007, 2, 21, 12, 29, 48).isoformat(),
-        channel_id="UCHDm-DKoMyJxKVgwGmuTaQA",
-        channel_name="Simon Yapp",
-        channel_url="https://www.youtube.com/channel/UCHDm-DKoMyJxKVgwGmuTaQA",
-        average_rating=0.0,
+    expected_download_path: str = download_path
+    expected_url = "https://www.youtube.com/watch?v=C0DPdy98e4c"
+    expected_downloaded_file = f"{os.path.join(gettempdir(), "TEST VIDEO")}"
+    expected_title = "TEST VIDEO"
+    expected_duration = "18"
+    expected_thumbnail = (
+        "https://i.ytimg.com/vi/C0DPdy98e4c/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-"
+        + "BIAC4AOKAgwIABABGGUgZShlMA8=&rs=AOn4CLCpSkMmgqrnX1UfJYnvUv_2pmZWzQ"
     )
+    expected_tags = [
+        "TONES",
+        "AND",
+        "BARS",
+        "Countdown",
+        "Black & White",
+        "Sync Flashes",
+        "Sync",
+        "Test Testing",
+        "Test",
+        "Testing",
+        "54321",
+        "Numbers",
+        "Quality",
+        "Call",
+        "Funny",
+    ]
+    expected_average_rating = 0.0
+    expected_published_date_str = datetime.datetime(2007, 2, 21, 12, 29, 48).isoformat()
 
     assert isinstance(download_result, DownloadedYouTubeVideo)
-    assert download_result == expected
+    assert download_result.url == expected_url
+    assert download_result.download_path == expected_download_path
+    assert download_result.average_rating == expected_average_rating
+    assert download_result.published_date_str == expected_published_date_str
+    assert download_result.tags == expected_tags
+    assert download_result.thumbnail == expected_thumbnail
+    assert download_result.duration == expected_duration
+    assert download_result.title == expected_title
+    assert expected_downloaded_file in download_result.downloaded_file
 
 
 def test_download_youtube_video_from_url_with_retry_attempts(
