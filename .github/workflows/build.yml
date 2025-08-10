@@ -1,0 +1,44 @@
+name: Building Project
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.1.2
+
+      - name: Setup the project
+        run: make setup && make update
+
+      - name: Linting the project
+        run: make lint
+
+      - name: Create cookies.txt
+        run: echo "${{ secrets.YT_COOKIES_PART_1 }}" > /tmp/cookies.txt
+
+      - name: Run tests
+        run: BROWSER_COOKIE_PATH=/tmp/cookies.txt make test-coverage

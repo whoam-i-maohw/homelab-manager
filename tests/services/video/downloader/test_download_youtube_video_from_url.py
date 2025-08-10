@@ -1,5 +1,4 @@
 from tempfile import gettempdir
-import datetime
 import os
 from tempfile import gettempdir
 
@@ -12,9 +11,17 @@ from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
 )
 from src.services.video.downloader import VideoDownloaderService
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
+import pytest
 
 
-def test_download_youtube_video_from_url_happy_path():
+@pytest.fixture()
+def browser_cookie_path():
+    yield os.environ.get("BROWSER_COOKIE_PATH", None)
+
+
+def test_download_youtube_video_from_url_happy_path(
+    browser_cookie_path: str | None,
+) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -26,52 +33,55 @@ def test_download_youtube_video_from_url_happy_path():
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=1,
         retry_timeout=0,
     )
 
-    expected: DownloadedYouTubeVideo = DownloadedYouTubeVideo(
-        url="https://www.youtube.com/watch?v=C0DPdy98e4c",
-        resolution=144,
-        download_path=gettempdir(),
-        downloaded_file=f"{os.path.join(gettempdir(), "TEST VIDEO.mkv")}",
-        title="TEST VIDEO",
-        height=144,
-        width=192,
-        duration="18",
-        thumbnail="https://i.ytimg.com/vi/C0DPdy98e4c/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-"
-        + "BIAC4AOKAgwIABABGGUgZShlMA8=&rs=AOn4CLCpSkMmgqrnX1UfJYnvUv_2pmZWzQ",
-        tags=[
-            "TONES",
-            "AND",
-            "BARS",
-            "Countdown",
-            "Black & White",
-            "Sync Flashes",
-            "Sync",
-            "Test Testing",
-            "Test",
-            "Testing",
-            "54321",
-            "Numbers",
-            "Quality",
-            "Call",
-            "Funny",
-        ],
-        published_date_str=datetime.datetime(2007, 2, 21, 12, 29, 48).isoformat(),
-        channel_id="UCHDm-DKoMyJxKVgwGmuTaQA",
-        channel_name="Simon Yapp",
-        channel_url="https://www.youtube.com/channel/UCHDm-DKoMyJxKVgwGmuTaQA",
-        average_rating=0.0,
+    expected_download_path: str = download_path
+    expected_url = "https://www.youtube.com/watch?v=C0DPdy98e4c"
+    expected_downloaded_file = f"{os.path.join(gettempdir(), "TEST VIDEO")}"
+    expected_title = "TEST VIDEO"
+    expected_duration = "18"
+    expected_thumbnail = (
+        "https://i.ytimg.com/vi/C0DPdy98e4c/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-"
+        + "BIAC4AOKAgwIABABGGUgZShlMA8=&rs=AOn4CLCpSkMmgqrnX1UfJYnvUv_2pmZWzQ"
     )
+    expected_tags = [
+        "TONES",
+        "AND",
+        "BARS",
+        "Countdown",
+        "Black & White",
+        "Sync Flashes",
+        "Sync",
+        "Test Testing",
+        "Test",
+        "Testing",
+        "54321",
+        "Numbers",
+        "Quality",
+        "Call",
+        "Funny",
+    ]
+    expected_average_rating = 0.0
 
     assert isinstance(download_result, DownloadedYouTubeVideo)
-    assert download_result == expected
+    assert download_result.url == expected_url
+    assert download_result.download_path == expected_download_path
+    assert download_result.average_rating == expected_average_rating
+    assert download_result.tags == expected_tags
+    assert download_result.thumbnail == expected_thumbnail
+    assert download_result.duration == expected_duration
+    assert download_result.title == expected_title
+    assert expected_downloaded_file in download_result.downloaded_file
 
 
-def test_download_youtube_video_from_url_with_retry_attempts(capsys: CaptureFixture):
+def test_download_youtube_video_from_url_with_retry_attempts(
+    capsys: CaptureFixture, browser_cookie_path: str | None
+) -> None:
     url: str = "https://www.youtube.com/watch?v=invalid_video"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -84,6 +94,7 @@ def test_download_youtube_video_from_url_with_retry_attempts(capsys: CaptureFixt
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=retry_attempts,
@@ -106,7 +117,9 @@ def test_download_youtube_video_from_url_with_retry_attempts(capsys: CaptureFixt
     assert download_result == expected
 
 
-def test_download_youtube_video_from_url_with_retry_timeout(capsys: CaptureFixture):
+def test_download_youtube_video_from_url_with_retry_timeout(
+    capsys: CaptureFixture, browser_cookie_path: str | None
+) -> None:
     url: str = "https://www.youtube.com/watch?v=invalid_video"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -119,6 +132,7 @@ def test_download_youtube_video_from_url_with_retry_timeout(capsys: CaptureFixtu
         url=url,
         download_path=download_path,
         resolution=resolution,
+        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=1,

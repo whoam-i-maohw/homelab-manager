@@ -21,6 +21,7 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
         url: str,
         resolution: int = 1080,
         download_path: str,
+        cookies_file_path: str | None = None,
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
         on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
     ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
@@ -60,7 +61,12 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                 )
 
         download_options: dict[str, Any] = dict(
-            format=f"bv*[height<={resolution}]+ba",
+            format=(
+                f"bv*[height={resolution}]+ba/"  # 1️⃣ exact match
+                f"bv*[height>={resolution}]+ba/"  # 2️⃣ nearest higher
+                f"bv*[height<={resolution}]+ba/"  # 3️⃣ nearest lower
+                "best"  # 4️⃣ default (best) -- will be used for SABR streaming clients
+            ),
             progress_hooks=[__on_progress_hook],
             postprocessor_hooks=[],
             paths=dict(home=download_path),
@@ -69,7 +75,11 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
             noprogress=True,
             consoletitle=True,
             extractor_retries=0,
+            extractor_args={"youtubetab": {"skip": ["authcheck"]}},
         )
+
+        if cookies_file_path is not None:
+            download_options.update(dict(cookiefile=cookies_file_path))
 
         with YoutubeDL(download_options) as yt:
             try:
@@ -120,8 +130,6 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                     error_message = f"This url [{url}] doesn't exist !"
                 elif "Failed to extract any player response" in str(ex):
                     error_message = "There is no internet connectivity !"
-                elif "Requested format is not available" in str(ex):
-                    error_message = f"This video resolution [{resolution}P] is not available for this video !"
 
                 return DownloadingYouTubeVideoError(
                     error=error_message,
