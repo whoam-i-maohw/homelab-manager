@@ -97,4 +97,4 @@ def test_download_youtube_video_from_url_to_channel_name_dir_invalid_directory_p
     )
 
     assert isinstance(download_result, DownloadingYouTubeVideoError)
-    assert "unable to open for writing" in download_result.error
+    assert "Permission denied" in download_result.error

@@ -9,6 +9,7 @@ from src.domain.entity.video.download_status import (
     OnProgressDownloadingVideoStatus,
 )
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 
 class VideoDownloaderService:
@@ -163,3 +164,115 @@ class VideoDownloaderService:
                     )
             case DownloadedYouTubeVideo() as downloaded_video:
                 return downloaded_video
+
+    def download_youtube_videos_from_txt_file_to_channel_name_dir(
+        self,
+        *,
+        urls_txt_file_path: str,
+        resolution: int = 1080,
+        download_root_path: str,
+        cookies_file_path: str | None = None,
+        retry_attempts: int = 3,
+        retry_timeout: int = 3,
+        concurrency: int = 3,
+        on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
+        on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
+    ) -> tuple[list[DownloadingYouTubeVideoError], list[DownloadedYouTubeVideo]]:
+        if not os.path.exists(urls_txt_file_path):
+            return [
+                DownloadingYouTubeVideoError(
+                    error=f"This urls txt file path [{urls_txt_file_path}] doesn't exist !",
+                    download_path=download_root_path,
+                    resolution=resolution,
+                    url=urls_txt_file_path,
+                )
+            ], []
+
+        with open(urls_txt_file_path, "r") as urls_txt_file:
+            urls = urls_txt_file.readlines()
+
+        def __process_wrapper(
+            url: str,
+        ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
+            return self.download_youtube_video_from_url_to_channel_name_dir(
+                url=url.strip(),
+                resolution=resolution,
+                download_root_path=download_root_path,
+                cookies_file_path=cookies_file_path,
+                retry_attempts=retry_attempts,
+                retry_timeout=retry_timeout,
+                on_progress_callback=on_progress_callback,
+                on_complete_callback=on_complete_callback,
+            )
+
+        with ThreadPoolExecutor(max_workers=concurrency) as execution_pool:
+            results = list(execution_pool.map(__process_wrapper, urls))
+
+            errors = [
+                result
+                for result in results
+                if isinstance(result, DownloadingYouTubeVideoError)
+            ]
+            successes = [
+                result
+                for result in results
+                if isinstance(result, DownloadedYouTubeVideo)
+            ]
+
+            return errors, successes
+
+    def download_youtube_videos_from_txt_file(
+        self,
+        *,
+        urls_txt_file_path: str,
+        resolution: int = 1080,
+        download_path: str,
+        cookies_file_path: str | None = None,
+        retry_attempts: int = 3,
+        retry_timeout: int = 3,
+        concurrency: int = 3,
+        on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
+        on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
+    ) -> tuple[list[DownloadingYouTubeVideoError], list[DownloadedYouTubeVideo]]:
+        if not os.path.exists(urls_txt_file_path):
+            return [
+                DownloadingYouTubeVideoError(
+                    error=f"This urls txt file path [{urls_txt_file_path}] doesn't exist !",
+                    download_path=download_path,
+                    resolution=resolution,
+                    url=urls_txt_file_path,
+                )
+            ], []
+
+        with open(urls_txt_file_path, "r") as urls_txt_file:
+            urls = urls_txt_file.readlines()
+
+        def __process_wrapper(
+            url: str,
+        ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
+            return self.download_youtube_video_from_url(
+                url=url.strip(),
+                resolution=resolution,
+                download_path=download_path,
+                cookies_file_path=cookies_file_path,
+                retry_attempts=retry_attempts,
+                retry_timeout=retry_timeout,
+                on_progress_callback=on_progress_callback,
+                on_complete_callback=on_complete_callback,
+            )
+
+        with ThreadPoolExecutor(max_workers=concurrency) as execution_pool:
+            results = list(execution_pool.map(__process_wrapper, urls))
+
+            errors = [
+                result
+                for result in results
+                if isinstance(result, DownloadingYouTubeVideoError)
+            ]
+            successes = [
+                result
+                for result in results
+                if isinstance(result, DownloadedYouTubeVideo)
+            ]
+
+            return errors, successes

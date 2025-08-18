@@ -14,10 +14,16 @@ Homelab Manager project to manage different things on my homelab server(s) 😊
 make
 ```
 
-# How to health-check the project's components
+# How to setup the project's components
 
 ```bash
-make health-check
+make setup
+```
+
+# How to run tests for the project's components
+
+```bash
+make test-coverage
 ```
 
 # Project's Features
@@ -27,6 +33,7 @@ make health-check
     - [x] YouTube Video
       - [x] Download a YouTube video to a specific directory
       - [x] Download a YouTube video to a directory of the video's channel name inside a base-directory
+      - [x] Download YouTube videos from a urls txt file to a specific directory
   - [ ] Video's Metadata Persistence
   - [ ] Video Tags Generation
   - [ ] Video Transcribe Generation
