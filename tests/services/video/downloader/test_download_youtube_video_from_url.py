@@ -1,6 +1,7 @@
 from tempfile import gettempdir
 import os
 from tempfile import gettempdir
+from unittest.mock import Mock, patch
 
 from pytest import CaptureFixture
 
@@ -11,17 +12,29 @@ from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
 )
 from src.services.video.downloader import VideoDownloaderService
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
-import pytest
 
 
-@pytest.fixture()
-def browser_cookie_path():
-    yield os.environ.get("BROWSER_COOKIE_PATH", None)
-
-
-def test_download_youtube_video_from_url_happy_path(
-    browser_cookie_path: str | None,
-) -> None:
+@patch(
+    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    return_value=DownloadedYouTubeVideo(
+        url="",
+        average_rating=0.0,
+        channel_id="",
+        channel_name="",
+        channel_url="",
+        download_path="",
+        downloaded_file="",
+        duration="",
+        height=1,
+        published_date_str="",
+        resolution=1,
+        tags=[],
+        thumbnail=None,
+        title="",
+        width=1,
+    ),
+)
+def test_download_youtube_video_from_url_happy_path(_mock_socket: Mock) -> None:
     url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     download_path: str = gettempdir()
     resolution: int = 144
@@ -33,58 +46,50 @@ def test_download_youtube_video_from_url_happy_path(
         url=url,
         download_path=download_path,
         resolution=resolution,
-        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=1,
         retry_timeout=0,
     )
 
-    expected_download_path: str = download_path
-    expected_url = "https://www.youtube.com/watch?v=C0DPdy98e4c"
-    expected_downloaded_file = f"{os.path.join(gettempdir(), "TEST VIDEO")}"
-    expected_title = "TEST VIDEO"
-    expected_duration = "18"
-    expected_thumbnail = (
-        "https://i.ytimg.com/vi/C0DPdy98e4c/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-"
-        + "BIAC4AOKAgwIABABGGUgZShlMA8=&rs=AOn4CLCpSkMmgqrnX1UfJYnvUv_2pmZWzQ"
+    expected_video = DownloadedYouTubeVideo(
+        url="",
+        average_rating=0.0,
+        channel_id="",
+        channel_name="",
+        channel_url="",
+        download_path="",
+        downloaded_file="",
+        duration="",
+        height=1,
+        published_date_str="",
+        resolution=1,
+        tags=[],
+        thumbnail=None,
+        title="",
+        width=1,
     )
-    expected_tags = [
-        "TONES",
-        "AND",
-        "BARS",
-        "Countdown",
-        "Black & White",
-        "Sync Flashes",
-        "Sync",
-        "Test Testing",
-        "Test",
-        "Testing",
-        "54321",
-        "Numbers",
-        "Quality",
-        "Call",
-        "Funny",
-    ]
-    expected_average_rating = 0.0
 
     assert isinstance(download_result, DownloadedYouTubeVideo)
-    assert download_result.url == expected_url
-    assert download_result.download_path == expected_download_path
-    assert download_result.average_rating == expected_average_rating
-    assert download_result.tags == expected_tags
-    assert download_result.thumbnail == expected_thumbnail
-    assert download_result.duration == expected_duration
-    assert download_result.title == expected_title
-    assert expected_downloaded_file in download_result.downloaded_file
+    assert download_result == expected_video
 
 
+@patch(
+    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    return_value=DownloadingYouTubeVideoError(
+        error=f"This url [https://www.youtube.com/watch?v=invalid_video] doesn't exist !",
+        url="https://www.youtube.com/watch?v=invalid_video",
+        resolution=1,
+        download_path=gettempdir(),
+    ),
+)
 def test_download_youtube_video_from_url_with_retry_attempts(
-    capsys: CaptureFixture, browser_cookie_path: str | None
+    _mock_socket: Mock,
+    capsys: CaptureFixture,
 ) -> None:
     url: str = "https://www.youtube.com/watch?v=invalid_video"
     download_path: str = gettempdir()
-    resolution: int = 144
+    resolution: int = 1
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
     retry_attempts: int = 3
 
@@ -94,7 +99,6 @@ def test_download_youtube_video_from_url_with_retry_attempts(
         url=url,
         download_path=download_path,
         resolution=resolution,
-        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=retry_attempts,
@@ -117,12 +121,22 @@ def test_download_youtube_video_from_url_with_retry_attempts(
     assert download_result == expected
 
 
+@patch(
+    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    return_value=DownloadingYouTubeVideoError(
+        error=f"This url [https://www.youtube.com/watch?v=invalid_video] doesn't exist !",
+        url="https://www.youtube.com/watch?v=invalid_video",
+        resolution=1,
+        download_path=gettempdir(),
+    ),
+)
 def test_download_youtube_video_from_url_with_retry_timeout(
-    capsys: CaptureFixture, browser_cookie_path: str | None
+    _mock_socket: Mock,
+    capsys: CaptureFixture,
 ) -> None:
     url: str = "https://www.youtube.com/watch?v=invalid_video"
     download_path: str = gettempdir()
-    resolution: int = 144
+    resolution: int = 1
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
     retry_timeout: int = 1
 
@@ -132,7 +146,6 @@ def test_download_youtube_video_from_url_with_retry_timeout(
         url=url,
         download_path=download_path,
         resolution=resolution,
-        cookies_file_path=browser_cookie_path,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
         retry_attempts=1,
