@@ -37,8 +37,5 @@ jobs:
       - name: Linting the project
         run: make lint
 
-      - name: Create cookies.txt
-        run: echo "${{ secrets.YT_COOKIES_PART_1 }}" > /tmp/cookies.txt
-
       - name: Run tests
-        run: BROWSER_COOKIE_PATH=/tmp/cookies.txt make test-coverage
+        run: make test-coverage
