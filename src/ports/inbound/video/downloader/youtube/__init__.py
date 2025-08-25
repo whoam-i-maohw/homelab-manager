@@ -22,6 +22,7 @@ class YouTubeVideoDownloaderInterface(ABC):
         resolution: int = 1080,
         download_path: str,
         cookies_file_path: str | None = None,
+        initial_tags: list[str] = [],
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
         on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
     ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
@@ -31,6 +32,7 @@ class YouTubeVideoDownloaderInterface(ABC):
             url (str): The url of the video you want to download
             resolution (int, optional): The resolution that the video will be downloaded into. Defaults to 1080.
             download_path (str): The base dir path that the video will be downloaded into
+            initial_tags (list[str]): The initial tags that the video will be having
             cookies_file_path (str, optional): The cookies file that will be used for the download flow mimicking a real user login.
                 Defaults to None.
             on_progress_callback (Callable[[OnProgressDownloadingVideoStatus], Any]):

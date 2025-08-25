@@ -21,6 +21,7 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
         url: str,
         resolution: int = 1080,
         download_path: str,
+        initial_tags: list[str] = [],
         cookies_file_path: str | None = None,
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
         on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
@@ -111,7 +112,7 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                     channel_id=youtube_video_info.get("channel_id", "NA"),
                     channel_name=youtube_video_info.get("channel", "NA"),
                     channel_url=youtube_video_info.get("channel_url", "NA"),
-                    tags=youtube_video_info.get("tags", []),
+                    tags=initial_tags + youtube_video_info.get("tags", []),
                     thumbnail=youtube_video_info.get("thumbnail", "NA"),
                     average_rating=(
                         fetched_video_average_rating
