@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import re
 from typing import Any, Callable
 from yt_dlp import YoutubeDL
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
@@ -43,9 +44,15 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                         height=resolution,
                         width=status_obj.get("info_dict", {}).get("width", "NA"),
                         size_in_bytes=status_obj.get("total_bytes", "NA"),
-                        downloaded_ratio=status_obj.get("_percent_str", "NA"),
-                        download_speed_in_bytes=status_obj.get("_speed_str", "NA"),
-                        download_eta_in_seconds=status_obj.get("_eta_str", "00:00"),
+                        downloaded_ratio=re.sub(
+                            r"\x1b\[[0-9;]*m", "", status_obj.get("_percent_str", "NA")
+                        ).strip(),
+                        download_speed_in_bytes=re.sub(
+                            r"\x1b\[[0-9;]*m", "", status_obj.get("_speed_str", "NA")
+                        ).strip(),
+                        download_eta_in_seconds=re.sub(
+                            r"\x1b\[[0-9;]*m", "", status_obj.get("_eta_str", "00:00")
+                        ).strip(),
                     )
                 )
             elif status_obj.get("status", "NA") == "finished":
@@ -76,7 +83,6 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
             noprogress=True,
             consoletitle=True,
             extractor_retries=0,
-            extractor_args={"youtubetab": {"skip": ["authcheck"]}},
         )
 
         if cookies_file_path is not None:
