@@ -35,7 +35,12 @@ make test-coverage
       - [x] Download a YouTube video to a directory of the video's channel name inside a base-directory
       - [x] Download YouTube videos from a urls txt file to a specific directory
   - [ ] Video's Metadata Persistence
-    - [x] YouTube Video Metadata Persistence
+    - [x] YouTube Video
+      - [x] Save YouTube Video In Database
+      - [x] Get YouTube Video From Database By Video's UUID
+      - [x] Get YouTube Video From Database By Video's Title
+      - [x] Get YouTube Video From Database By Video's Url
+      - [x] Get YouTube Video(s) From Database By Video's Channel-Name
   - [ ] Video Tags Generation
   - [ ] Video Transcribe Generation
 - [ ] Audio
