@@ -1,5 +1,4 @@
 from pony.orm import Database, db_session
-from yt_dlp.extractor import err
 from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl.models.youtube_video import (
     register_video_model,
 )
