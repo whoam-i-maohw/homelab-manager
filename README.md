@@ -34,6 +34,7 @@ make test-coverage
       - [x] Download a YouTube video to a specific directory
       - [x] Download a YouTube video to a directory of the video's channel name inside a base-directory
       - [x] Download YouTube videos from a urls txt file to a specific directory
+  
   - [ ] Video's Metadata Persistence
     - [x] YouTube Video
       - [x] Save YouTube Video In Database
@@ -41,10 +42,18 @@ make test-coverage
       - [x] Get YouTube Video From Database By Video's Title
       - [x] Get YouTube Video From Database By Video's Url
       - [x] Get YouTube Video(s) From Database By Video's Channel-Name
+  
   - [ ] Video Tags Generation
   - [ ] Video Transcribe Generation
+
 - [ ] Audio
   - [ ] Audio Downloader
   - [ ] Audio's Metadata Persistence
   - [ ] Audio Tags Generation
   - [ ] Audio Transcribe Generation
+
+- [ ] Communication
+  - [ ] Message Queues
+    - [x] RabbitMQ
+      - [x] Produce A Message Over A Topic
+      - [x] Consume Message(s) Over A Topic

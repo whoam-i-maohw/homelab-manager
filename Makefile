@@ -17,7 +17,7 @@ lint: ## Lint the project
 	@echo "Linting the project"
 	@poetry run ruff check src --config ruff.toml
 
-test-coverage: ## Test-Coverage the project
+test-coverage: lint ## Test-Coverage the project
 	@echo "Running test-coverage for the project ..."
 	@poetry run coverage run -m pytest tests -vv
 	@poetry run coverage report -m
