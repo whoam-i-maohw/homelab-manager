@@ -26,6 +26,9 @@ make setup
 make test-coverage
 ```
 
+# Things to be adjusted before running
+- There is a `prod.env.example` file inside the `configs` directory, this is an example of the Env Variables that needs to be used for the project, make a copy of the file with the name `prod.env` and put real production values inside it so the project can be using them properly.
+
 # Project's Features
 
 - [ ] Video
@@ -57,3 +60,7 @@ make test-coverage
     - [x] RabbitMQ
       - [x] Produce A Message Over A Topic
       - [x] Consume Message(s) Over A Topic
+
+- [ ] GateWay
+  - [ ] RestApi
+    - [x] FastApi Implementation Of GateWay
