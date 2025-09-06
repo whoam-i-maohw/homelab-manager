@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable
 
-from src.domain.entity.error.video import DownloadingYouTubeVideoError
-from src.domain.entity.video.youtube import DownloadedYouTubeVideo
+from src.domain.entity.error.video import (
+    DownloadingYouTubeVideoError,
+    GettingYouTubeVideoInfoError,
+)
+from src.domain.entity.video.youtube import DownloadedYouTubeVideo, YouTubeVideoInfo
 from src.domain.entity.video.download_status import (
     OnCompleteDownloadingVideoStatus,
     OnProgressDownloadingVideoStatus,
@@ -42,5 +45,19 @@ class YouTubeVideoDownloaderInterface(ABC):
 
         Returns:
             DownloadingYouTubeVideoError | DownloadedYouTubeVideo: Either Error entity or a Success entity
+        """
+        raise Exception("This should be implemented from an adapter !")
+
+    @abstractmethod
+    def get_video_info_from_url(
+        self, *, url: str
+    ) -> GettingYouTubeVideoInfoError | YouTubeVideoInfo:
+        """Getting YouTube video info from a url
+
+        Args:
+            url (str): The url of the video we want to get info about
+
+        Returns:
+            GettingYouTubeVideoInfoError | YouTubeVideoInfo: Either Error entity or a Success entity
         """
         raise Exception("This should be implemented from an adapter !")

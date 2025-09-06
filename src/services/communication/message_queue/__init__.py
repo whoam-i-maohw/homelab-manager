@@ -30,13 +30,13 @@ class MessageQueueCommunicationService:
         self,
         *,
         topic: str,
-        deserialization_class: type[T],
+        deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
     ) -> ConsumingMessageError | None:
         return self.__message_consumer.consume_messages(
             topic=topic,
-            deserialization_class=deserialization_class,
+            deserialization_function=deserialization_function,
             callback_function=callback_function,
             consume_forever=consume_forever,
         )

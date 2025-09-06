@@ -3,6 +3,8 @@ import os
 import re
 from typing import Any, Callable
 from yt_dlp import YoutubeDL
+from src.domain.entity.error.video import GettingYouTubeVideoInfoError
+from src.domain.entity.video.youtube import YouTubeVideoInfo
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 from src.domain.entity.video.download_status import (
     OnCompleteDownloadingVideoStatus,
@@ -15,6 +17,42 @@ from src.ports.inbound.video.downloader.youtube import YouTubeVideoDownloaderInt
 class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
     def __init__(self) -> None:
         pass
+
+    def get_video_info_from_url(
+        self, *, url: str
+    ) -> GettingYouTubeVideoInfoError | YouTubeVideoInfo:
+        with YoutubeDL() as yt:
+            try:
+                youtube_video_info = yt.extract_info(url=url, download=False)
+                assert youtube_video_info is not None
+                video_title: str = os.path.basename(
+                    youtube_video_info.get("fulltitle", "NA")
+                )
+                published_timestamp: float = float(
+                    youtube_video_info.get("timestamp", datetime.now().timestamp())
+                )
+                published_date: datetime = datetime.fromtimestamp(published_timestamp)
+                fetched_video_average_rating = youtube_video_info.get(
+                    "average_rating", 0.0
+                )
+                return YouTubeVideoInfo(
+                    url=url,
+                    title=video_title,
+                    duration=youtube_video_info.get("duration_string", "NA"),
+                    published_date_str=published_date.isoformat(),
+                    channel_id=youtube_video_info.get("channel_id", "NA"),
+                    channel_name=youtube_video_info.get("channel", "NA"),
+                    channel_url=youtube_video_info.get("channel_url", "NA"),
+                    tags=youtube_video_info.get("tags", []),
+                    thumbnail=youtube_video_info.get("thumbnail", "NA"),
+                    average_rating=(
+                        fetched_video_average_rating
+                        if fetched_video_average_rating is not None
+                        else 0.0
+                    ),
+                )
+            except Exception as ex:
+                return GettingYouTubeVideoInfoError(error=str(ex))
 
     def download_from_url(
         self,

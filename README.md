@@ -31,14 +31,15 @@ make test-coverage
 
 # Project's Features
 
-- [ ] Video
+- [x] Video
   - [x] Video Downloader
     - [x] YouTube Video
       - [x] Download a YouTube video to a specific directory
       - [x] Download a YouTube video to a directory of the video's channel name inside a base-directory
       - [x] Download YouTube videos from a urls txt file to a specific directory
+      - [x] Download YouTube videos from a urls txt file to a directory of the video's channel name inside a base-directory
   
-  - [ ] Video's Metadata Persistence
+  - [x] Video's Metadata Persistence
     - [x] YouTube Video
       - [x] Save YouTube Video In Database
       - [x] Get YouTube Video From Database By Video's UUID
@@ -55,12 +56,12 @@ make test-coverage
   - [ ] Audio Tags Generation
   - [ ] Audio Transcribe Generation
 
-- [ ] Communication
-  - [ ] Message Queues
+- [x] Communication
+  - [x] Message Queues
     - [x] RabbitMQ
       - [x] Produce A Message Over A Topic
       - [x] Consume Message(s) Over A Topic
 
-- [ ] GateWay
-  - [ ] RestApi
+- [x] GateWay
+  - [x] RestApi
     - [x] FastApi Implementation Of GateWay

@@ -22,6 +22,20 @@ class DownloadedYouTubeVideo:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
+class YouTubeVideoInfo:
+    url: str
+    title: str
+    duration: str
+    published_date_str: str
+    average_rating: float
+    thumbnail: str | None
+    tags: list[str]
+    channel_id: str
+    channel_name: str
+    channel_url: str
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
 class RepositoryYouTubeVideo:
     uuid: str
     created_at: datetime.datetime

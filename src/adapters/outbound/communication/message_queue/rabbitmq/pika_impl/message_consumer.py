@@ -1,6 +1,6 @@
 import asyncio
 import pickle
-from typing import Any, Callable, Type
+from typing import Any, Callable
 
 from aio_pika import ExchangeType, connect_robust
 from src.domain.entity.error.message_queue import ConsumingMessageError
@@ -28,7 +28,7 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
     async def __process_consume_messages[T](
         self,
         topic: str,
-        deserialization_class: Type[T],
+        deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
     ) -> ConsumingMessageError | None:
@@ -53,7 +53,7 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
                     async for message in queue_iter:
                         async with message.process():
                             callback_function(
-                                deserialization_class(**pickle.loads(message.body))
+                                deserialization_function(pickle.loads(message.body))
                             )
                             if not consume_forever:
                                 return None
@@ -64,14 +64,14 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
         self,
         *,
         topic: str,
-        deserialization_class: type[T],
+        deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
     ) -> ConsumingMessageError | None:
         return asyncio.run(
             self.__process_consume_messages(
                 topic=topic,
-                deserialization_class=deserialization_class,
+                deserialization_function=deserialization_function,
                 callback_function=callback_function,
                 consume_forever=consume_forever,
             )

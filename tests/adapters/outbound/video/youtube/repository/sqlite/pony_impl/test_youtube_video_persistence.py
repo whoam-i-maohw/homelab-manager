@@ -1,3 +1,4 @@
+from typing import Any, Generator
 from src.domain.entity.video.youtube import RepositoryYouTubeVideo
 from src.domain.entity.error.video import (
     DownloadedYouTubeVideo,
@@ -11,7 +12,7 @@ import pytest
 
 
 @pytest.fixture
-def setup_db():
+def setup_db() -> Generator[SqlitePonyYouTubeVideoRepository, Any, None]:
     yield SqlitePonyYouTubeVideoRepository(database_path=":memory:")
 
 

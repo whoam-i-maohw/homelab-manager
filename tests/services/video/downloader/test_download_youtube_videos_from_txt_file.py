@@ -1,8 +1,13 @@
+import os
 from tempfile import gettempdir
 from unittest.mock import Mock, patch
 
+from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl import (
+    SqlitePonyYouTubeVideoRepository,
+)
+from src.configs.sqlite import SqliteDatabaseConfigs
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
-from src.services.video.downloader import VideoDownloaderService
+from src.services.video.youtube import YouTubeVideoService
 from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
@@ -41,8 +46,13 @@ def test_download_youtube_videos_from_txt_file_happy_path(_mock_socket: Mock) ->
     resolution: int = 1
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_videos_from_txt_file(
         urls_txt_file_path=tmp_txt_file,
         download_path=download_root_path,
@@ -89,8 +99,13 @@ def test_download_youtube_videos_from_txt_file_invalid_file_path() -> None:
     resolution: int = 1
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_videos_from_txt_file(
         urls_txt_file_path=tmp_txt_file,
         download_path=download_root_path,
