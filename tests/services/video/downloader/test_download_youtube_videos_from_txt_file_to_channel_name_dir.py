@@ -2,8 +2,7 @@ import os
 from tempfile import gettempdir
 from unittest.mock import Mock, patch
 
-from src.configs.sqlite import SqliteDatabaseConfigs
-from src.domain.entity.video.youtube import DownloadedYouTubeVideo
+from src.domain.entity.video.youtube import DownloadedYouTubeVideo, YouTubeVideoInfo
 from src.services.video.youtube import YouTubeVideoService
 from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
@@ -34,8 +33,24 @@ from tempfile import mkstemp
         width=1,
     ),
 )
+@patch(
+    "src.services.video.youtube.YouTubeVideoService.get_youtube_video_info_for_url",
+    return_value=YouTubeVideoInfo(
+        url="testing",
+        average_rating=0.0,
+        channel_id="",
+        channel_name="testing_channel",
+        channel_url="",
+        duration="",
+        published_date_str="",
+        tags=[],
+        thumbnail=None,
+        title="",
+    ),
+)
 def test_download_youtube_videos_from_txt_file_to_channel_name_dir_happy_path(
-    _mock_socket: Mock,
+    _mock_socket1: Mock,
+    _mock_socket2: Mock,
 ) -> None:
     url_1: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
     url_2: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
