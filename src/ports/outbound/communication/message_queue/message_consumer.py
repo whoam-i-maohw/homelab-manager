@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Type
+from typing import Any, Callable
 from src.domain.entity.error.message_queue import ConsumingMessageError
 
 
@@ -13,7 +13,7 @@ class MessageConsumerInterface(ABC):
         self,
         *,
         topic: str,
-        deserialization_class: Type[T],
+        deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
     ) -> ConsumingMessageError | None:
@@ -21,7 +21,7 @@ class MessageConsumerInterface(ABC):
 
         Args:
             topic (str): The topic that the messages will be consumed from
-            deserialization_class (Type[T]): The deserialization type of the messages consumed
+            deserialization_function (Callable[[dict[str, Any]], T]): The deserialization function that will be used
             callback_function (Callable[[T], Any]): Call back function to be called when getting a new message
             consume_forever (bool): If this consumption will run forever or just once. Defaults to True
 

@@ -11,6 +11,11 @@ class DownloadingYouTubeVideoError:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
+class GettingYouTubeVideoInfoError:
+    error: str
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
 class SavingYouTubeVideoError:
     error: str
     video: DownloadedYouTubeVideo

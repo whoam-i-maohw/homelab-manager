@@ -2,10 +2,14 @@ import os
 from tempfile import gettempdir
 from unittest.mock import Mock, patch
 
+from src.configs.sqlite import SqliteDatabaseConfigs
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
-from src.services.video.downloader import VideoDownloaderService
+from src.services.video.youtube import YouTubeVideoService
 from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
+)
+from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl import (
+    SqlitePonyYouTubeVideoRepository,
 )
 from tempfile import mkstemp
 
@@ -18,8 +22,8 @@ from tempfile import mkstemp
         channel_id="",
         channel_name="testing_channel",
         channel_url="",
-        download_path=gettempdir(),
-        downloaded_file=os.path.join(gettempdir(), "testing"),
+        download_path=os.path.join(gettempdir(), "t", "testing_channel"),
+        downloaded_file=os.path.join(gettempdir(), "t", "testing_channel", "testing"),
         duration="",
         height=1,
         published_date_str="",
@@ -49,8 +53,13 @@ def test_download_youtube_videos_from_txt_file_to_channel_name_dir_happy_path(
     resolution: int = 1
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_videos_from_txt_file_to_channel_name_dir(
         urls_txt_file_path=tmp_txt_file,
         download_root_path=download_root_path,
@@ -99,8 +108,13 @@ def test_download_youtube_videos_from_txt_file_to_channel_name_dir_invalid_file_
     resolution: int = 144
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_videos_from_txt_file_to_channel_name_dir(
         urls_txt_file_path=tmp_txt_file,
         download_root_path=download_root_path,
