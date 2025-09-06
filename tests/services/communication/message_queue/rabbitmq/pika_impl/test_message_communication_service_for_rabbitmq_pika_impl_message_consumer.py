@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class TestData:
+class DataForTesting:
     data: str
 
 
@@ -40,9 +40,9 @@ def test_consume_one_message_successfully() -> None:
         )
 
         topic: str = "test-topic"
-        expected_message: TestData = TestData(data="data !")
+        expected_message: DataForTesting = DataForTesting(data="data !")
 
-        def assert_consumption(test_data: TestData) -> None:
+        def assert_consumption(test_data: DataForTesting) -> None:
             assert test_data == expected_message
 
         consumption_thread = threading.Thread(
@@ -50,7 +50,7 @@ def test_consume_one_message_successfully() -> None:
             kwargs=dict(
                 topic=topic,
                 consume_forever=False,
-                deserialization_class=TestData,
+                deserialization_class=DataForTesting,
                 callback_function=assert_consumption,
             ),
         )
@@ -82,7 +82,7 @@ def test_invalid_credential_for_message_queue_consumption() -> None:
         ).consume_messages(
             topic="test-topic",
             consume_forever=False,
-            deserialization_class=TestData,
+            deserialization_function=lambda data: DataForTesting(**data),
             callback_function=lambda s: print(s),
         )
 

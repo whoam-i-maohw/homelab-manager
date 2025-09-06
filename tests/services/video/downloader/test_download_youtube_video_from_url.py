@@ -5,12 +5,16 @@ from unittest.mock import Mock, patch
 
 from pytest import CaptureFixture
 
+from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl import (
+    SqlitePonyYouTubeVideoRepository,
+)
+from src.configs.sqlite import SqliteDatabaseConfigs
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
 from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
-from src.services.video.downloader import VideoDownloaderService
+from src.services.video.youtube import YouTubeVideoService
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 
 
@@ -40,8 +44,13 @@ def test_download_youtube_video_from_url_happy_path(_mock_socket: Mock) -> None:
     resolution: int = 144
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url(
         url=url,
         download_path=download_path,
@@ -93,8 +102,13 @@ def test_download_youtube_video_from_url_with_retry_attempts(
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
     retry_attempts: int = 3
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url(
         url=url,
         download_path=download_path,
@@ -140,8 +154,13 @@ def test_download_youtube_video_from_url_with_retry_timeout(
     youtube_video_downloader = YtDlpYouTubeVideoDownloader()
     retry_timeout: int = 1
 
-    download_result = VideoDownloaderService(
-        youtube_video_downloader=youtube_video_downloader
+    youtube_video_repository = SqlitePonyYouTubeVideoRepository(
+        database_path=os.path.join(gettempdir(), "test.db")
+    )
+
+    download_result = YouTubeVideoService(
+        youtube_video_downloader=youtube_video_downloader,
+        youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url(
         url=url,
         download_path=download_path,
