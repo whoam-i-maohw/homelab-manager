@@ -43,8 +43,10 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
 
             async with connection:
                 channel = await connection.channel()
-                exchange = await channel.declare_exchange(topic, ExchangeType.FANOUT)
-                queue = await channel.declare_queue(topic)
+                exchange = await channel.declare_exchange(
+                    topic, ExchangeType.FANOUT, durable=True
+                )
+                queue = await channel.declare_queue(topic, durable=True)
                 await queue.bind(exchange)
 
                 print(f" [*] Waiting for messages from [{topic}]. To exit press CTRL+C")

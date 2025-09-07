@@ -51,3 +51,6 @@ all-events-persisting-handler: ## Running the all-events-persisting-handler
 
 run-gateway-server: ## Running the run_gateway_server
 	@sh src/external_systems/scripts/run_gateway_server.sh
+
+run-rabbitmq-docker: ## Running rabbitmq docker container
+	@docker-compose -f docker/rabbitmq/docker-compose.yml up -d
