@@ -1,6 +1,7 @@
 import asyncio
 import pickle
 from typing import Any, Callable
+import uuid
 
 from aio_pika import ExchangeType, connect_robust
 from src.domain.entity.error.message_queue import ConsumingMessageError
@@ -44,9 +45,14 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
             async with connection:
                 channel = await connection.channel()
                 exchange = await channel.declare_exchange(
-                    topic, ExchangeType.FANOUT, durable=True
+                    name=topic, type=ExchangeType.FANOUT
                 )
-                queue = await channel.declare_queue(topic, durable=True)
+                queue = await channel.declare_queue(
+                    name=f"{topic}_{uuid.uuid4()}",
+                    durable=True,
+                    exclusive=True,
+                    auto_delete=True,
+                )
                 await queue.bind(exchange)
 
                 print(f" [*] Waiting for messages from [{topic}]. To exit press CTRL+C")

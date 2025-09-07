@@ -37,11 +37,11 @@ class PikaRabbitMqMessageProducer(MessageProducerInterface):
             async with connection:
                 channel = await connection.channel()
                 exchange = await channel.declare_exchange(
-                    topic, ExchangeType.FANOUT, durable=True
+                    name=topic, type=ExchangeType.FANOUT
                 )
                 await exchange.publish(
-                    Message(data, delivery_mode=DeliveryMode.PERSISTENT),
-                    routing_key=topic,
+                    message=Message(data, delivery_mode=DeliveryMode.PERSISTENT),
+                    routing_key="",
                 )
                 return None
         except Exception as ex:
