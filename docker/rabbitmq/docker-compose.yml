@@ -1,0 +1,14 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbit_dev
+    hostname: rabbit_dev
+    restart: unless-stopped
+    ports:
+      - "15672:15672" # Management UI
+      - "5672:5672" # AMQP protocol
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    volumes:
+      - ${RABBITMQ_VOLUME_DIR}:/var/lib/rabbitmq/mnesia/
