@@ -28,26 +28,26 @@ test-coverage: lint ## Test-Coverage the project
 	@poetry run coverage html
 
 
-all-commands-persisting-handler: setup ## Running the all-commands-persisting-handler
+all-commands-persisting-handler: ## Running the all-commands-persisting-handler
 	@poetry run python src/external_systems/commands_handler/generic/all_commands_persisting_handler.py
 
-download-youtube-video-for-url-command-handler: setup ## Running the download_youtube_video_for_url_command_handler
+download-youtube-video-for-url-command-handler: ## Running the download_youtube_video_for_url_command_handler
 	@poetry run python src/external_systems/commands_handler/video/download/youtube/download_youtube_video_for_url_command_handler.py
 
-download-youtube-video-from-txt-file-command-handler: setup ## Running the download_youtube_video_from_txt_file_command_handler
+download-youtube-video-from-txt-file-command-handler: ## Running the download_youtube_video_from_txt_file_command_handler
 	@poetry run python src/external_systems/commands_handler/video/download/youtube/download_youtube_video_from_txt_file_command_handler.py
 
-download-youtube-video-from-txt-file-to-channel-name-dir-command-handler: setup ## Running the download_youtube_video_from_txt_file_to_channel_name_dir_command_handler
+download-youtube-video-from-txt-file-to-channel-name-dir-command-handler: ## Running the download_youtube_video_from_txt_file_to_channel_name_dir_command_handler
 	@poetry run python src/external_systems/commands_handler/video/download/youtube/download_youtube_video_from_txt_file_to_channel_name_dir_command_handler.py
 
-download-youtube-video-from-url-to-channel-name-command-handler-dir: setup ## Running the download_youtube_video_from_url_to_channel_name_command_handler_dir
+download-youtube-video-from-url-to-channel-name-command-handler-dir: ## Running the download_youtube_video_from_url_to_channel_name_command_handler_dir
 	@poetry run python src/external_systems/commands_handler/video/download/youtube/download_youtube_video_from_url_to_channel_name_command_handler_dir.py
 
-downloaded-youtube-video-event-handler: setup ## Running the downloaded_youtube_video_event_handler
+downloaded-youtube-video-event-handler: ## Running the downloaded_youtube_video_event_handler
 	@poetry run python src/external_systems/events_handler/video/persist/youtube/downloaded_youtube_video_event_handler.py
 
-all-events-persisting-handler: setup ## Running the all-events-persisting-handler
+all-events-persisting-handler: ## Running the all-events-persisting-handler
 	@poetry run python src/external_systems/events_handler/generic/all_events_persisting_handler.py
 
-run-gateway-server: setup ## Running the run_gateway_server
+run-gateway-server: ## Running the run_gateway_server
 	@sh src/external_systems/scripts/run_gateway_server.sh
