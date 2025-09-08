@@ -112,7 +112,7 @@ def main() -> None:
     message_queue_service.consume_messages(
         topic=DownloadedYouTubeVideoEvent.get_topic(),
         deserialization_function=lambda data: DownloadedYouTubeVideoEvent(
-            created_at_iso_format=data["timestamp"],
+            created_at_iso_format=data["created_at_iso_format"],
             downloaded_video=DownloadedYouTubeVideo(**data["downloaded_video"]),
         ),
         callback_function=__process_downloaded_youtube_video_event__wrapper(
