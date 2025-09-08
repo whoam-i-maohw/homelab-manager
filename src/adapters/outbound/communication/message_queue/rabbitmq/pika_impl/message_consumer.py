@@ -49,7 +49,6 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
                 )
                 queue = await channel.declare_queue(
                     name=f"{topic}_{uuid.uuid4()}",
-                    durable=True,
                     exclusive=True,
                     auto_delete=True,
                 )
