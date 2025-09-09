@@ -44,6 +44,11 @@ make test-coverage
       - [x] Download YouTube videos from a urls txt file to a specific directory
       - [x] Download YouTube videos from a urls txt file to a directory of the video's channel name inside a base-directory
   
+  - [x] Video Fetcher
+    - [x] YouTube Video
+      - [x] Fetch YouTube Video Info For Url
+      - [x] Fetch Latest YouTube Videos For Channel By Channel Name
+  
   - [x] Video's Metadata Persistence
     - [x] YouTube Video
       - [x] Save YouTube Video In Database
