@@ -75,3 +75,6 @@ make test-coverage
 - [x] GateWay
   - [x] RestApi
     - [x] FastApi Implementation Of GateWay
+
+
+[![codecov](https://codecov.io/gh/OWNER/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/OWNER/REPO)
