@@ -2,17 +2,22 @@
 
 Homelab Manager project to manage different things on my homelab server(s) 😊
 
+# Architecture
+I'm using the Hexagonal-Architecture (Ports [Interfaces] and Adapters [Implementations]), you can have a glimpse of the architecture from the wiki here [https://en.wikipedia.org/wiki/Hexagonal_architecture_(software)]
+
 # Perquisites
 
 - Python3.11+ and that can be downloaded from here [https://www.python.org/downloads/]
 - Make build tool and that can be downloaded from here [https://www.gnu.org/software/make/]
 - Poetry package manager for python and that can be downloaded from here [https://python-poetry.org/]
+- Docker since we are using TestContainers for testing, you can download it from here [https://www.docker.com/]
 
 # How to know what can be done for the project
 
 ```bash
 make
 ```
+![all_make_commands](resources/images/all_make_commands.png)
 
 # How to setup the project's components
 
