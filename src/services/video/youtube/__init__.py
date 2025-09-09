@@ -1,10 +1,12 @@
 import os
-from src.ports.inbound.video.downloader.youtube import YouTubeVideoDownloaderInterface
 from typing import Any, Callable
+from src.ports.inbound.video.youtube.fetcher import YouTubeVideoFetcherInterface
+from src.ports.inbound.video.youtube.downloader import YouTubeVideoDownloaderInterface
 from src.domain.entity.error.video import (
     DownloadingYouTubeVideoError,
     GettingYouTubeVideoError,
     GettingYouTubeVideoInfoError,
+    GettingYouTubeVideosFromChannelNameError,
     SavingYouTubeVideoError,
 )
 from src.domain.entity.video.youtube import (
@@ -26,15 +28,26 @@ class YouTubeVideoService:
         self,
         *,
         youtube_video_downloader: YouTubeVideoDownloaderInterface,
+        youtube_video_fetcher: YouTubeVideoFetcherInterface,
         youtube_video_repository: YouTubeVideoRepositoryInterface,
     ) -> None:
         self.__youtube_video_downloader = youtube_video_downloader
+        self.__youtube_video_fetcher = youtube_video_fetcher
         self.__youtube_video_repository = youtube_video_repository
+
+    # TODO make each function logic in a separate file for better handling of this source file 😁
 
     def get_youtube_video_info_for_url(
         self, *, url: str
     ) -> GettingYouTubeVideoInfoError | YouTubeVideoInfo:
-        return self.__youtube_video_downloader.get_video_info_from_url(url=url)
+        return self.__youtube_video_fetcher.get_video_info_from_url(url=url)
+
+    def get_latest_video_from_channel(
+        self, *, channel_name: str, videos_limit: int = 3
+    ) -> GettingYouTubeVideosFromChannelNameError | list[YouTubeVideoInfo]:
+        return self.__youtube_video_fetcher.get_latest_video_from_channel(
+            channel_name=channel_name, videos_limit=videos_limit
+        )
 
     def download_youtube_video_from_url_to_channel_name_dir(
         self,

@@ -24,3 +24,9 @@ class SavingYouTubeVideoError:
 @dataclass(frozen=True, slots=True, kw_only=True)
 class GettingYouTubeVideoError:
     error: str
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class GettingYouTubeVideosFromChannelNameError:
+    error: str
+    channel_name: str

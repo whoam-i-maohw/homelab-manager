@@ -3,13 +3,13 @@ from tempfile import gettempdir
 
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
-from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
+from src.adapters.inbound.video.youtube.downloader.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
     return_value=DownloadedYouTubeVideo(
         url="",
         average_rating=0.0,
@@ -65,7 +65,7 @@ def test_download_test_youtube_short_video(_mock_socket: Mock) -> None:
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YoutubeDL.extract_info",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YoutubeDL.extract_info",
     side_effect=Exception("Failed to extract any player response"),
 )
 def test_no_internet_connection(_mock_socket: Mock) -> None:
@@ -94,7 +94,7 @@ def test_no_internet_connection(_mock_socket: Mock) -> None:
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YoutubeDL.extract_info",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YoutubeDL.extract_info",
     side_effect=Exception("is not a valid URL"),
 )
 def test_invalid_url_video(_mock_socket: Mock) -> None:
