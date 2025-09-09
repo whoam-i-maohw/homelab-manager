@@ -24,7 +24,8 @@ test-in-parallel: lint ## Running tests for the project in parallel for the proj
 test-coverage: lint ## Test-Coverage the project
 	@echo "Running test-coverage for the project ..."
 	@poetry run coverage run -m pytest tests -vv
-	@poetry run coverage report -m
+	@poetry run coverage report -m --fail-under=80
+	@poetry run coverage xml
 	@poetry run coverage html
 
 

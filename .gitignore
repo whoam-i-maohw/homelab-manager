@@ -49,6 +49,7 @@ venv.bak/
 .pytest_cache/
 .coverage
 htmlcov/
+coverage.xml
 
 # Other
 .pdm.toml

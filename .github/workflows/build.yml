@@ -37,5 +37,11 @@ jobs:
       - name: Linting the project
         run: make lint
 
-      - name: Run tests
-        run: make test-in-parallel
+      - name: Run tests with coverage (fail if under 80%)
+        run: make test-coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
