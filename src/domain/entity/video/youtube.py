@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import datetime
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -38,5 +37,5 @@ class YouTubeVideoInfo:
 @dataclass(frozen=True, slots=True, kw_only=True)
 class RepositoryYouTubeVideo:
     uuid: str
-    created_at: datetime.datetime
+    created_at: str
     video: DownloadedYouTubeVideo

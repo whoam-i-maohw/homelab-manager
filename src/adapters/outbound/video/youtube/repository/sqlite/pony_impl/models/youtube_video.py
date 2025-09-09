@@ -8,9 +8,7 @@ def register_video_model(*, db: Database):
     class VideoModel(db.Entity):
         _table_ = "youtube_videos"
         uuid = PrimaryKey(int, auto=True)
-        created_at = Required(
-            datetime.datetime, default=lambda: datetime.datetime.now()
-        )
+        created_at = Required(str, default=lambda: datetime.datetime.now().isoformat())
         url = Required(str, unique=True)
         resolution = Optional(int)
         download_path = Required(str)
