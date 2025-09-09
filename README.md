@@ -77,4 +77,4 @@ make test-coverage
     - [x] FastApi Implementation Of GateWay
 
 
-[![codecov](https://codecov.io/gh/whoam-i-maohw/homelab-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/OWNER/REPO)
+[![codecov](https://codecov.io/gh/whoam-i-maohw/homelab-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/whoam-i-maohw/homelab-manager)
