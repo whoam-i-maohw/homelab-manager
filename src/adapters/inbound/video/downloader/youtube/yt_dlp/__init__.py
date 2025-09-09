@@ -11,10 +11,10 @@ from src.domain.entity.video.download_status import (
     OnProgressDownloadingVideoStatus,
 )
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
-from src.ports.inbound.video.downloader.youtube import YouTubeVideoDownloaderInterface
+from src.ports.inbound.video.downloader.youtube import YouTubeVideoInterface
 
 
-class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
+class YtDlpYouTubeVideoDownloader(YouTubeVideoInterface):
     def __init__(self) -> None:
         pass
 
