@@ -33,9 +33,10 @@ from src.adapters.outbound.communication.message_queue.rabbitmq.pika_impl.messag
 from src.adapters.outbound.communication.message_queue.rabbitmq.pika_impl.message_consumer import (
     PikaRabbitMqMessageConsumer,
 )
-from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
+from src.adapters.inbound.video.youtube.downloader.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
+from src.adapters.inbound.video.youtube.fetcher.yt_dlp import YtDlpYouTubeVideoFetcher
 import nest_asyncio
 
 nest_asyncio.apply()
@@ -126,6 +127,7 @@ def main() -> None:
             message_queue_service=message_queue_service,
             video_downloader_service=YouTubeVideoService(
                 youtube_video_downloader=YtDlpYouTubeVideoDownloader(),
+                youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
                 youtube_video_repository=youtube_video_repository,
             ),
         ),
