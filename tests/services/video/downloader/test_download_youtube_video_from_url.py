@@ -5,13 +5,14 @@ from unittest.mock import Mock, patch
 
 from pytest import CaptureFixture
 
+from src.adapters.inbound.video.youtube.fetcher.yt_dlp import YtDlpYouTubeVideoFetcher
 from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl import (
     SqlitePonyYouTubeVideoRepository,
 )
 from src.configs.sqlite import SqliteDatabaseConfigs
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
-from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
+from src.adapters.inbound.video.youtube.downloader.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
 from src.services.video.youtube import YouTubeVideoService
@@ -19,7 +20,7 @@ from src.domain.entity.error.video import DownloadingYouTubeVideoError
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
     return_value=DownloadedYouTubeVideo(
         url="",
         average_rating=0.0,
@@ -50,6 +51,7 @@ def test_download_youtube_video_from_url_happy_path(_mock_socket: Mock) -> None:
 
     download_result = YouTubeVideoService(
         youtube_video_downloader=youtube_video_downloader,
+        youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
         youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url(
         url=url,
@@ -84,7 +86,7 @@ def test_download_youtube_video_from_url_happy_path(_mock_socket: Mock) -> None:
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
     return_value=DownloadingYouTubeVideoError(
         error=f"This url [https://www.youtube.com/watch?v=invalid_video] doesn't exist !",
         url="https://www.youtube.com/watch?v=invalid_video",
@@ -108,6 +110,7 @@ def test_download_youtube_video_from_url_with_retry_attempts(
 
     download_result = YouTubeVideoService(
         youtube_video_downloader=youtube_video_downloader,
+        youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
         youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url(
         url=url,
@@ -136,7 +139,7 @@ def test_download_youtube_video_from_url_with_retry_attempts(
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
     return_value=DownloadingYouTubeVideoError(
         error=f"This url [https://www.youtube.com/watch?v=invalid_video] doesn't exist !",
         url="https://www.youtube.com/watch?v=invalid_video",
@@ -160,6 +163,7 @@ def test_download_youtube_video_from_url_with_retry_timeout(
 
     download_result = YouTubeVideoService(
         youtube_video_downloader=youtube_video_downloader,
+        youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
         youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url(
         url=url,

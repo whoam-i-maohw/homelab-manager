@@ -2,19 +2,20 @@ import os
 from tempfile import gettempdir
 from unittest.mock import Mock, patch
 
+from src.adapters.inbound.video.youtube.fetcher.yt_dlp import YtDlpYouTubeVideoFetcher
 from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl import (
     SqlitePonyYouTubeVideoRepository,
 )
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo, YouTubeVideoInfo
 from src.services.video.youtube import YouTubeVideoService
-from src.adapters.inbound.video.downloader.youtube.yt_dlp import (
+from src.adapters.inbound.video.youtube.downloader.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
 
 
 @patch(
-    "src.adapters.inbound.video.downloader.youtube.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
     return_value=DownloadedYouTubeVideo(
         url="testing",
         average_rating=0.0,
@@ -66,6 +67,7 @@ def test_download_youtube_video_from_url_to_channel_name_dir_happy_path(
 
     download_result = YouTubeVideoService(
         youtube_video_downloader=youtube_video_downloader,
+        youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
         youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url_to_channel_name_dir(
         url=url,
@@ -113,6 +115,7 @@ def test_download_youtube_video_from_url_to_channel_name_dir_invalid_directory_p
 
     download_result = YouTubeVideoService(
         youtube_video_downloader=youtube_video_downloader,
+        youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
         youtube_video_repository=youtube_video_repository,
     ).download_youtube_video_from_url_to_channel_name_dir(
         url=url,

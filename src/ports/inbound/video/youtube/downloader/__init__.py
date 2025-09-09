@@ -4,7 +4,7 @@ from typing import Any, Callable
 from src.domain.entity.error.video import (
     DownloadingYouTubeVideoError,
 )
-from src.domain.entity.video.youtube import DownloadedYouTubeVideo, YouTubeVideoInfo
+from src.domain.entity.video.youtube import DownloadedYouTubeVideo
 from src.domain.entity.video.download_status import (
     OnCompleteDownloadingVideoStatus,
     OnProgressDownloadingVideoStatus,
