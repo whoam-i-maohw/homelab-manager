@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import pickle
 import time
 from typing import Any, Callable
@@ -78,35 +79,47 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
         retry_attempts: int = 5,
         retry_timeout: int = 3,
     ) -> ConsumingMessageError | None:
-        consumption_status = asyncio.run(
-            self.__process_consume_messages(
-                exchange_name=exchange_name,
-                queue_topic=queue_topic,
-                deserialization_function=deserialization_function,
-                callback_function=callback_function,
-                consume_forever=consume_forever,
-            )
-        )
-        if isinstance(consumption_status, ConsumingMessageError):
-            print(
-                f" [x] Error consuming messages for topic [{queue_topic}] for reason [{consumption_status.error}] ..."
-            )
-            if retry_attempts > 0:
-                print(
-                    f" [x] Retrying again in [{retry_timeout}] seconds, Remaining attempts [{retry_attempts-1}] ..."
-                )
-                time.sleep(retry_timeout)
-                return self.consume_messages(
+        def __process(*, initial_time: datetime.datetime, initial_retry_attempts: int):
+            consumption_status = asyncio.run(
+                self.__process_consume_messages(
                     exchange_name=exchange_name,
                     queue_topic=queue_topic,
                     deserialization_function=deserialization_function,
                     callback_function=callback_function,
                     consume_forever=consume_forever,
-                    retry_attempts=retry_attempts - 1,
-                    retry_timeout=retry_timeout,
                 )
-            else:
+            )
+            current_retry_attempts = retry_attempts
+            if isinstance(consumption_status, ConsumingMessageError):
                 print(
-                    f" [x] Exhausted all retry attempts consuming messages from topic [{queue_topic}] ..."
+                    f" [x] Error consuming messages for topic [{queue_topic}] for reason [{consumption_status.error}] ..."
                 )
-                return consumption_status
+                delta_time = datetime.datetime.now() - initial_time
+                if (
+                    delta_time.seconds > 60
+                ):  # if error is more than 1 min, repeat the retry attempts since it's not circular ;)
+                    current_retry_attempts = initial_retry_attempts
+
+                if current_retry_attempts > 0:
+                    print(
+                        f" [x] Retrying again in [{retry_timeout}] seconds, Remaining attempts [{retry_attempts-1}] ..."
+                    )
+                    time.sleep(retry_timeout)
+                    return self.consume_messages(
+                        exchange_name=exchange_name,
+                        queue_topic=queue_topic,
+                        deserialization_function=deserialization_function,
+                        callback_function=callback_function,
+                        consume_forever=consume_forever,
+                        retry_attempts=retry_attempts - 1,
+                        retry_timeout=retry_timeout,
+                    )
+                else:
+                    print(
+                        f" [x] Exhausted all retry attempts consuming messages from topic [{queue_topic}] ..."
+                    )
+                    return consumption_status
+
+        return __process(
+            initial_retry_attempts=retry_attempts, initial_time=datetime.datetime.now()
+        )
