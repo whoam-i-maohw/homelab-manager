@@ -29,13 +29,15 @@ class MessageQueueCommunicationService:
     def consume_messages[T](
         self,
         *,
-        topic: str,
+        exchange_name: str,
+        queue_topic: str,
         deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
     ) -> ConsumingMessageError | None:
         return self.__message_consumer.consume_messages(
-            topic=topic,
+            exchange_name=exchange_name,
+            queue_topic=queue_topic,
             deserialization_function=deserialization_function,
             callback_function=callback_function,
             consume_forever=consume_forever,

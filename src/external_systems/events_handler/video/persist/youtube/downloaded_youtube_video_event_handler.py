@@ -111,7 +111,8 @@ def main() -> None:
     )
 
     message_queue_service.consume_messages(
-        topic=DownloadedYouTubeVideoEvent.get_topic(),
+        exchange_name=DownloadedYouTubeVideoEvent.get_topic(),
+        queue_topic=f"{DownloadedYouTubeVideoEvent.get_topic()}_{os.path.basename(__file__).strip(".py")}",
         deserialization_function=lambda data: DownloadedYouTubeVideoEvent(
             created_at_iso_format=data["created_at_iso_format"],
             downloaded_video=DownloadedYouTubeVideo(**data["downloaded_video"]),

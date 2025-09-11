@@ -92,7 +92,8 @@ def main() -> None:
     ) -> ConsumingMessageError | None:
         event, serialization_function = event_with_serialization_tuple
         return message_queue_service.consume_messages(
-            topic=event.get_topic(),
+            exchange_name=event.get_topic(),
+            queue_topic=f"{event.get_topic()}_{os.path.basename(__file__).strip(".py")}",
             deserialization_function=serialization_function,
             callback_function=process_event__wrapper(event_service=event_service),
         )
