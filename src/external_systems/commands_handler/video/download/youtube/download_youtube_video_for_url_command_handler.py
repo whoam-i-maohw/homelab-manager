@@ -119,7 +119,8 @@ def main() -> None:
     )
 
     message_queue_service.consume_messages(
-        topic=DownloadYouTubeVideoFromUrlCommand.get_topic(),
+        exchange_name=DownloadYouTubeVideoFromUrlCommand.get_topic(),
+        queue_topic=f"{DownloadYouTubeVideoFromUrlCommand.get_topic()}_{os.path.basename(__file__).strip(".py")}",
         deserialization_function=lambda data: DownloadYouTubeVideoFromUrlCommand(
             **data
         ),

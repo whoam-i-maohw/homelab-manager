@@ -1,7 +1,7 @@
 import threading
 from time import sleep
+import pytest
 from testcontainer_python_rabbitmq import RabbitMQContainer
-from src.domain.entity.error.message_queue import ProducingMessageError
 from src.domain.entity.error.message_queue import (
     ConsumingMessageError,
 )
@@ -22,7 +22,9 @@ class DataForTesting:
     data: str
 
 
-def test_consume_one_message_successfully() -> None:
+def test_consume_one_message_successfully(
+    capsys: pytest.CaptureFixture,
+) -> None:
     with RabbitMQContainer() as container:
         message_queue_service = MessageQueueCommunicationService(
             message_producer=PikaRabbitMqMessageProducer(
@@ -48,15 +50,22 @@ def test_consume_one_message_successfully() -> None:
         consumption_thread = threading.Thread(
             target=message_queue_service.consume_messages,
             kwargs=dict(
-                topic=topic,
+                exchange_name=topic,
+                queue_topic=topic,
                 consume_forever=False,
-                deserialization_class=DataForTesting,
+                deserialization_function=lambda data: DataForTesting(**data),
                 callback_function=assert_consumption,
             ),
         )
         consumption_thread.daemon = True
         consumption_thread.start()
         consumption_thread.join(timeout=11)
+
+        captured = capsys.readouterr()
+        assert (
+            captured.out.strip()
+            == "[*] Waiting for messages from [test-topic]. To exit press CTRL+C"
+        )
 
         producing_status = message_queue_service.produce_message(
             topic=topic, data=pickle.dumps(asdict(expected_message))
@@ -80,7 +89,8 @@ def test_invalid_credential_for_message_queue_consumption() -> None:
                 rabbitmq_password="invalid",
             ),
         ).consume_messages(
-            topic="test-topic",
+            exchange_name="test-exchange",
+            queue_topic="test-topic",
             consume_forever=False,
             deserialization_function=lambda data: DataForTesting(**data),
             callback_function=lambda s: print(s),

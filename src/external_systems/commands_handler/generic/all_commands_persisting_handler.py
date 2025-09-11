@@ -88,7 +88,8 @@ def main() -> None:
     ) -> ConsumingMessageError | None:
         command, serialization_function = command_with_serialization_tuple
         return message_queue_service.consume_messages(
-            topic=command.get_topic(),
+            exchange_name=command.get_topic(),
+            queue_topic=f"{command.get_topic()}_{os.path.basename(__file__).strip(".py")}",
             deserialization_function=serialization_function,
             callback_function=process_command__wrapper(),
         )

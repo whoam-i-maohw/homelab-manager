@@ -1,3 +1,5 @@
+import datetime
+import os
 from unittest.mock import Mock, patch
 from tempfile import gettempdir
 
@@ -7,31 +9,32 @@ from src.adapters.inbound.video.youtube.downloader.yt_dlp import (
     YtDlpYouTubeVideoDownloader,
 )
 
+expected_time_timestamp = datetime.datetime.now().timestamp()
+
 
 @patch(
-    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YtDlpYouTubeVideoDownloader.download_from_url",
-    return_value=DownloadedYouTubeVideo(
-        url="",
+    "src.adapters.inbound.video.youtube.downloader.yt_dlp.YoutubeDL.extract_info",
+    return_value=dict(
+        url="testing_url",
         average_rating=0.0,
-        channel_id="",
-        channel_name="",
-        channel_url="",
-        download_path="",
-        downloaded_file="",
-        duration="",
+        channel_id="testing_channel_id",
+        channel="testing_channel_name",
+        channel_url="testing_channel_url",
+        duration_string="1:0",
         height=1,
-        published_date_str="",
+        width=1,
+        timestamp=expected_time_timestamp,
         resolution=1,
         tags=[],
         thumbnail=None,
-        title="",
-        width=1,
+        fulltitle="testing_title",
+        ext="mkv",
     ),
 )
 def test_download_test_youtube_short_video(_mock_socket: Mock) -> None:
-    url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
+    url: str = "testing_url"
     download_path: str = gettempdir()
-    resolution: int = 144
+    resolution: int = 1
     download_result: (
         DownloadingYouTubeVideoError | DownloadedYouTubeVideo
     ) = YtDlpYouTubeVideoDownloader().download_from_url(
@@ -40,23 +43,26 @@ def test_download_test_youtube_short_video(_mock_socket: Mock) -> None:
         resolution=resolution,
         on_complete_callback=lambda s: print(s),
         on_progress_callback=lambda s: print(s),
+        cookies_file_path=os.path.join(gettempdir(), "anyfile"),
     )
 
     expected_video = DownloadedYouTubeVideo(
-        url="",
+        url="testing_url",
         average_rating=0.0,
-        channel_id="",
-        channel_name="",
-        channel_url="",
-        download_path="",
-        downloaded_file="",
-        duration="",
+        channel_id="testing_channel_id",
+        channel_name="testing_channel_name",
+        channel_url="testing_channel_url",
+        download_path=gettempdir(),
+        downloaded_file=f"{os.path.join(gettempdir(), "testing_title")}.mkv",
+        duration="1:0",
         height=1,
-        published_date_str="",
+        published_date_str=datetime.datetime.fromtimestamp(
+            expected_time_timestamp
+        ).isoformat(),
         resolution=1,
         tags=[],
         thumbnail=None,
-        title="",
+        title="testing_title",
         width=1,
     )
 
@@ -123,7 +129,7 @@ def test_invalid_url_video(_mock_socket: Mock) -> None:
 
 
 def test_invalid_download_path() -> None:
-    url: str = "https://www.youtube.com/watch?v=C0DPdy98e4c"
+    url: str = "testing_url"
     download_path: str = "/invalid"
     resolution: int = 144
     download_result: (

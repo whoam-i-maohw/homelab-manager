@@ -8,10 +8,12 @@ from src.adapters.outbound.event.repository.sqlite.pony_impl.models.event import
 )
 from src.ports.outbound.event.repository import EventRepositoryInterface
 from src.domain.entity.events.video.youtube.downloaded_youtube_video_event import (
+    DownloadedYouTubeVideo,
     DownloadedYouTubeVideoEvent,
 )
 from src.domain.entity.events.video.youtube.persisted_youtube_video_event import (
     PersistedYouTubeVideoEvent,
+    RepositoryYouTubeVideo,
 )
 
 
@@ -51,11 +53,35 @@ class PonySqliteEventRepository(EventRepositoryInterface):
                             res.append(GenericEvent(**event.event_data_json))
                         case "DownloadedYouTubeVideoEvent":
                             res.append(
-                                DownloadedYouTubeVideoEvent(**event.event_data_json)
+                                DownloadedYouTubeVideoEvent(
+                                    created_at_iso_format=event.event_data_json[
+                                        "created_at_iso_format"
+                                    ],
+                                    downloaded_video=DownloadedYouTubeVideo(
+                                        **event.event_data_json["downloaded_video"]
+                                    ),
+                                )
                             )
                         case "PersistedYouTubeVideoEvent":
                             res.append(
-                                PersistedYouTubeVideoEvent(**event.event_data_json)
+                                PersistedYouTubeVideoEvent(
+                                    created_at_iso_format=event.event_data_json[
+                                        "created_at_iso_format"
+                                    ],
+                                    persisted_video=RepositoryYouTubeVideo(
+                                        created_at=event.event_data_json[
+                                            "persisted_video"
+                                        ]["created_at"],
+                                        uuid=event.event_data_json["persisted_video"][
+                                            "uuid"
+                                        ],
+                                        video=DownloadedYouTubeVideo(
+                                            **event.event_data_json["persisted_video"][
+                                                "video"
+                                            ]
+                                        ),
+                                    ),
+                                )
                             )
                 return res
         except Exception as ex:

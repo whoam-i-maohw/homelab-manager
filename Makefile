@@ -17,16 +17,9 @@ lint: ## Lint the project
 	@echo "Linting the project"
 	@poetry run ruff check src --config ruff.toml
 
-test-in-parallel: lint ## Running tests for the project in parallel for the project
-	@echo "Running tests in parallel for the project ..."
-	@poetry run pytest -n auto tests -vv
-
 test-coverage: lint ## Test-Coverage the project
 	@echo "Running test-coverage for the project ..."
-	@poetry run coverage run -m pytest tests -vv
-	@poetry run coverage report -m --fail-under=80
-	@poetry run coverage xml
-	@poetry run coverage html
+	@poetry run pytest -n auto --cov --cov-report=term-missing --cov-report=xml --cov-fail-under=80 tests -vv
 
 
 all-commands-persisting-handler: ## Running the all-commands-persisting-handler

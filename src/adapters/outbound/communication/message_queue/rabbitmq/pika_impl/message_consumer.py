@@ -1,7 +1,7 @@
 import asyncio
 import pickle
+import time
 from typing import Any, Callable
-import uuid
 
 from aio_pika import ExchangeType, connect_robust
 from src.domain.entity.error.message_queue import ConsumingMessageError
@@ -28,7 +28,9 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
 
     async def __process_consume_messages[T](
         self,
-        topic: str,
+        *,
+        exchange_name: str,
+        queue_topic: str,
         deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
@@ -45,16 +47,14 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
             async with connection:
                 channel = await connection.channel()
                 exchange = await channel.declare_exchange(
-                    name=topic, type=ExchangeType.FANOUT
+                    name=exchange_name, type=ExchangeType.FANOUT
                 )
-                queue = await channel.declare_queue(
-                    name=f"{topic}_{uuid.uuid4()}",
-                    exclusive=True,
-                    auto_delete=True,
-                )
+                queue = await channel.declare_queue(name=queue_topic, durable=True)
                 await queue.bind(exchange)
 
-                print(f" [*] Waiting for messages from [{topic}]. To exit press CTRL+C")
+                print(
+                    f" [*] Waiting for messages from [{queue_topic}]. To exit press CTRL+C"
+                )
 
                 async with queue.iterator() as queue_iter:
                     async for message in queue_iter:
@@ -70,16 +70,43 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
     def consume_messages[T](
         self,
         *,
-        topic: str,
+        exchange_name: str,
+        queue_topic: str,
         deserialization_function: Callable[[dict[str, Any]], T],
         callback_function: Callable[[T], Any],
         consume_forever: bool = True,
+        retry_attempts: int = 5,
+        retry_timeout: int = 3,
     ) -> ConsumingMessageError | None:
-        return asyncio.run(
+        consumption_status = asyncio.run(
             self.__process_consume_messages(
-                topic=topic,
+                exchange_name=exchange_name,
+                queue_topic=queue_topic,
                 deserialization_function=deserialization_function,
                 callback_function=callback_function,
                 consume_forever=consume_forever,
             )
         )
+        if isinstance(consumption_status, ConsumingMessageError):
+            print(
+                f" [x] Error consuming messages for topic [{queue_topic}] for reason [{consumption_status.error}] ..."
+            )
+            if retry_attempts > 0:
+                print(
+                    f" [x] Retrying again in [{retry_timeout}] seconds, Remaining attempts [{retry_attempts-1}] ..."
+                )
+                time.sleep(retry_timeout)
+                return self.consume_messages(
+                    exchange_name=exchange_name,
+                    queue_topic=queue_topic,
+                    deserialization_function=deserialization_function,
+                    callback_function=callback_function,
+                    consume_forever=consume_forever,
+                    retry_attempts=retry_attempts - 1,
+                    retry_timeout=retry_timeout,
+                )
+            else:
+                print(
+                    f" [x] Exhausted all retry attempts consuming messages from topic [{queue_topic}] ..."
+                )
+                return consumption_status
