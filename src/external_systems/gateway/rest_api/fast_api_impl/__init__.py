@@ -1,5 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from importlib.metadata import version
+
+from fastapi_mcp import FastApiMCP
 from src.services.communication.message_queue import MessageQueueCommunicationService
 from src.external_systems.gateway.rest_api.fast_api_impl.routers.download.video import (
     get_download_video_router,
@@ -27,6 +29,18 @@ class FastApiGateWay:
 
         for router in routers:
             self.__app.include_router(prefix=self.__base_api, router=router)
+
+        mcp = FastApiMCP(
+            self.__app,
+            include_operations=[
+                "download_youtube_video_from_url_to_channel_name_dir",
+                "download_youtube_videos_from_txt_file_to_channel_name_dir",
+            ],
+            describe_all_responses=True,
+            describe_full_response_schema=True,
+            description="Homelab Manager MCP Server",
+        )
+        mcp.mount_http()
 
     def get_app(self) -> FastAPI:
         """getting the api app (FastApi in this case)"""
