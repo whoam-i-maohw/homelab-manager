@@ -75,6 +75,9 @@ make test-coverage
 - [x] GateWay
   - [x] RestApi
     - [x] FastApi Implementation Of GateWay
+  
+- [x] MCP Server (For AI Functionalities)
+  - [x] YouTube Downloader
 
 
 [![codecov](https://codecov.io/gh/whoam-i-maohw/homelab-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/whoam-i-maohw/homelab-manager)
