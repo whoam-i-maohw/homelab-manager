@@ -1,5 +1,8 @@
 from typing import Any, Generator
 from testcontainer_python_rabbitmq import RabbitMQContainer
+from src.adapters.outbound.ai.nutrition_breakdown import NutritionBreakdownAIAgent
+from src.configs.ai_agents import AIAgentsConfigs
+from src.services.ai import AIService
 from src.domain.entity.commands.video.youtube.download_youtube_videos_from_txt_file_command import (
     DownloadYouTubeVideoFromTxtFileCommand,
 )
@@ -41,7 +44,18 @@ def fastapi_testing_client() -> Generator[TestClient, Any, None]:
             ),
         )
 
-        app = FastApiGateWay(message_queue_service=message_queue_service).get_app()
+        ai_agents_configs = AIAgentsConfigs.Testing()
+        ai_service = AIService(
+            nutrition_breakdown_ai_agent=NutritionBreakdownAIAgent(
+                agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
+                ollama_base_url=ai_agents_configs.ollama_base_url,
+                ollama_model=ai_agents_configs.nutrition_agent_model,
+            )
+        )
+
+        app = FastApiGateWay(
+            message_queue_service=message_queue_service, ai_service=ai_service
+        ).get_app()
         yield TestClient(app)
 
 
@@ -65,7 +79,18 @@ def fastapi_testing_client_with_wrong_rabbitmq_connection() -> (
             ),
         )
 
-        app = FastApiGateWay(message_queue_service=message_queue_service).get_app()
+        ai_agents_configs = AIAgentsConfigs.Testing()
+        ai_service = AIService(
+            nutrition_breakdown_ai_agent=NutritionBreakdownAIAgent(
+                agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
+                ollama_base_url=ai_agents_configs.ollama_base_url,
+                ollama_model=ai_agents_configs.nutrition_agent_model,
+            )
+        )
+
+        app = FastApiGateWay(
+            message_queue_service=message_queue_service, ai_service=ai_service
+        ).get_app()
         yield TestClient(app)
 
 
