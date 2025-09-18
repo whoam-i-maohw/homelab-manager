@@ -1,3 +1,6 @@
+from src.configs.ai_agents import AIAgentsConfigs
+from src.adapters.outbound.ai.nutrition_breakdown import NutritionBreakdownAIAgent
+from src.services.ai import AIService
 from src.services.communication.message_queue import MessageQueueCommunicationService
 from src.configs.rabbitmq import RabbitMQConfigs
 from src.external_systems.gateway.rest_api.fast_api_impl import FastApiGateWay
@@ -10,6 +13,8 @@ from src.adapters.outbound.communication.message_queue.rabbitmq.pika_impl.messag
 import nest_asyncio
 
 nest_asyncio.apply()
+
+# TODO maybe making this dependencies in a better way (Data Class maybe?) 😁
 
 rabbitmq_configs = RabbitMQConfigs.Production()
 
@@ -30,5 +35,17 @@ message_queue_service = MessageQueueCommunicationService(
     message_producer=message_producer, message_consumer=message_consumer
 )
 
+ai_agents_configs = AIAgentsConfigs.Production()
 
-app = FastApiGateWay(message_queue_service=message_queue_service).get_app()
+ai_service = AIService(
+    nutrition_breakdown_ai_agent=NutritionBreakdownAIAgent(
+        ollama_base_url=ai_agents_configs.ollama_base_url,
+        ollama_model=ai_agents_configs.nutrition_agent_model,
+        agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
+    )
+)
+
+
+app = FastApiGateWay(
+    message_queue_service=message_queue_service, ai_service=ai_service
+).get_app()

@@ -37,7 +37,7 @@ class PikaRabbitMqMessageProducer(MessageProducerInterface):
             async with connection:
                 channel = await connection.channel()
                 exchange = await channel.declare_exchange(
-                    name=topic, type=ExchangeType.FANOUT
+                    name=topic, type=ExchangeType.FANOUT, durable=True
                 )
                 await exchange.publish(
                     message=Message(data, delivery_mode=DeliveryMode.PERSISTENT),

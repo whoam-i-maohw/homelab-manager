@@ -43,8 +43,14 @@ downloaded-youtube-video-event-handler: ## Running the downloaded_youtube_video_
 all-events-persisting-handler: ## Running the all-events-persisting-handler
 	@poetry run python src/external_systems/events_handler/generic/all_events_persisting_handler.py
 
+run-telegram-nutrition-breakdown-agent-bot: ## Running the run_telegram_nutrition_breakdown_agent_bot
+	@poetry run python src/external_systems/events_handler/ai/nutrition_breakdown/telegram_nutrition_breakdown_bot_polling.py
+
 run-gateway-server: ## Running the run_gateway_server
 	@sh src/external_systems/scripts/run_gateway_server.sh
+
+run-mcp-server: ## Running the run_mcp_server
+	@sh src/external_systems/scripts/run_mcp_server.sh
 
 run-rabbitmq-docker: ## Running rabbitmq docker container
 	@docker-compose -f docker/rabbitmq/docker-compose.yml up -d
