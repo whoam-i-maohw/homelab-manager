@@ -44,7 +44,7 @@ def test_happy_path(_mock_socket: Mock) -> None:
     _file_descriptor, temp_file = mkstemp()
 
     ai_agents_configs = AIAgentsConfigs.Testing()
-    running_agent_status: AIAgentRunningError | NutritionBreakdown = (
+    running_agent_status: AIAgentRunningError | str | NutritionBreakdown = (
         NutritionBreakdownAIAgent(
             ollama_base_url=ai_agents_configs.ollama_base_url,
             ollama_model=ai_agents_configs.nutrition_agent_model,
@@ -67,7 +67,7 @@ def test_error_fetching_nutrition_breakdown_from_nutrition_agent(
     _file_descriptor, temp_file = mkstemp()
 
     ai_agents_configs = AIAgentsConfigs.Testing()
-    running_agent_status: AIAgentRunningError | NutritionBreakdown = (
+    running_agent_status: AIAgentRunningError | str | NutritionBreakdown = (
         NutritionBreakdownAIAgent(
             ollama_base_url=ai_agents_configs.ollama_base_url,
             ollama_model=ai_agents_configs.nutrition_agent_model,

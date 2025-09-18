@@ -11,5 +11,7 @@ class GenericAIAgentInterface[T](ABC):
         raise Exception("This should be implemented from an adapter !")
 
     @abstractmethod
-    def run_agent(self, *, initial_prompt: str, **kwargs) -> AIAgentRunningError | T:
+    def run_agent(
+        self, *, initial_prompt: str, **kwargs
+    ) -> AIAgentRunningError | str | T:
         raise Exception("This should be implemented from an adapter !")

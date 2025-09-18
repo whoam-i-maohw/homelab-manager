@@ -49,8 +49,13 @@ class NutritionBreakdownAIAgent(GenericAIAgentInterface[NutritionBreakdown]):
         return f"data:image/jpeg;base64,{b64}"
 
     def run_agent(
-        self, *, initial_prompt: str, image_uri: str, **kwargs
-    ) -> AIAgentRunningError | NutritionBreakdown:
+        self,
+        *,
+        initial_prompt: str,
+        image_uri: str,
+        response_in_json: bool = True,
+        **kwargs,
+    ) -> AIAgentRunningError | str | NutritionBreakdown:
         try:
             ollama_model = OpenAIChatModel(
                 model_name=self.__ollama_model,
@@ -73,33 +78,56 @@ class NutritionBreakdownAIAgent(GenericAIAgentInterface[NutritionBreakdown]):
 
             print(" [x] Processing getting nutrition flow ...")
 
-            result = agent.run_sync(
-                [
-                    f"{initial_prompt}, The plate is in average 27 cm, "
-                    "give me the nutrition breakdown for what's in the image, ",
-                    "Response only in JSON format of the nutrition breakdown "
-                    "of what's in the image with those keys inside the JSON Response, "
-                    "summary (what's actually inside the meal), calories, protein, "
-                    "carbohydrates, fiber, fats, saturated fat, sugar and sodium, "
-                    "note that, "
-                    "calories in kcal, "
-                    "protein in grams, "
-                    "carbohydrates in grams, "
-                    "fiber in grams, "
-                    "fats in grams, "
-                    "saturated_fat in grams, "
-                    "sugar in grams, "
-                    "sodium in grams."
-                    "So write the units in the values of the JSON response always.",
-                    image_url,
-                ]
-            )
-
-            return NutritionBreakdown(
-                **json.loads(
-                    result.output.replace("```json", "").replace("```", "").strip()
+            if response_in_json:
+                result = agent.run_sync(
+                    [
+                        f"{initial_prompt}, The plate is in average 27 cm, "
+                        "give me the nutrition breakdown for what's in the image, ",
+                        "Response only in JSON format of the nutrition breakdown "
+                        "of what's in the image with those keys inside the JSON Response, "
+                        "summary (what's actually inside the meal), calories, protein, "
+                        "carbohydrates, fiber, fats, saturated fat, sugar and sodium, "
+                        "note that, "
+                        "calories in kcal, "
+                        "protein in grams, "
+                        "carbohydrates in grams, "
+                        "fiber in grams, "
+                        "fats in grams, "
+                        "saturated_fat in grams, "
+                        "sugar in grams, "
+                        "sodium in grams."
+                        "So write the units in the values of the JSON response always.",
+                        image_url,
+                    ]
                 )
-            )
+
+                return NutritionBreakdown(
+                    **json.loads(
+                        result.output.replace("```json", "").replace("```", "").strip()
+                    )
+                )
+            else:
+                result = agent.run_sync(
+                    [
+                        f"{initial_prompt}, The plate is in average 27 cm, "
+                        "give me the nutrition breakdown for what's in the image, ",
+                        "Response in a human readable format, "
+                        "summary (what's actually inside the meal), calories, protein, "
+                        "carbohydrates, fiber, fats, saturated fat, sugar and sodium, "
+                        "note that, "
+                        "calories in kcal, "
+                        "protein in grams, "
+                        "carbohydrates in grams, "
+                        "fiber in grams, "
+                        "fats in grams, "
+                        "saturated_fat in grams, "
+                        "sugar in grams, "
+                        "sodium in grams.",
+                        image_url,
+                    ]
+                )
+
+                return result.output
         except Exception as ex:
             return AIAgentRunningError(
                 error=str(ex),

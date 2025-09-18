@@ -48,7 +48,7 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
             async with connection:
                 channel = await connection.channel()
                 exchange = await channel.declare_exchange(
-                    name=exchange_name, type=ExchangeType.FANOUT
+                    name=exchange_name, type=ExchangeType.FANOUT, durable=True
                 )
                 queue = await channel.declare_queue(name=queue_topic, durable=True)
                 await queue.bind(exchange)

@@ -10,8 +10,10 @@ class AIService:
         self.__nutrition_breakdown_ai_agent = nutrition_breakdown_ai_agent
 
     def get_nutrition_breakdown_from_image(
-        self, *, image_uri: str, initial_prompt: str
-    ) -> AIAgentRunningError | NutritionBreakdown:
+        self, *, image_uri: str, initial_prompt: str, response_in_json: bool = True
+    ) -> AIAgentRunningError | str | NutritionBreakdown:
         return self.__nutrition_breakdown_ai_agent.run_agent(
-            initial_prompt=initial_prompt, image_uri=image_uri
+            initial_prompt=initial_prompt,
+            image_uri=image_uri,
+            response_in_json=response_in_json,
         )

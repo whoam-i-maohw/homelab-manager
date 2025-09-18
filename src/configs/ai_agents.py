@@ -11,6 +11,9 @@ class AIAgentsConfigs:
         ollama_base_url = os.getenv("OLLAMA_BASE_URL", "")
         nutrition_agent_model = os.getenv("OLLAMA_NUTRITION_AGENT_MODEL", "")
         nutrition_agent_system_prompt = os.getenv("NUTRITION_AGENT_SYSTEM_PROMPT", "")
+        telegram_nutrition_breakdown_bot_token = os.getenv(
+            "TELEGRAM_NUTRITION_BOT_TOKEN", ""
+        )
 
     @dataclass(frozen=True, slots=True, kw_only=True)
     class Testing:
@@ -18,3 +21,6 @@ class AIAgentsConfigs:
         ollama_base_url = os.getenv("OLLAMA_BASE_URL", "")
         nutrition_agent_model = os.getenv("OLLAMA_NUTRITION_AGENT_MODEL", "")
         nutrition_agent_system_prompt = os.getenv("NUTRITION_AGENT_SYSTEM_PROMPT", "")
+        telegram_nutrition_breakdown_bot_token = os.getenv(
+            "TELEGRAM_NUTRITION_BOT_TOKEN", ""
+        )
