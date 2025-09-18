@@ -78,6 +78,13 @@ make test-coverage
   
 - [x] MCP Server (For AI Functionalities)
   - [x] YouTube Downloader
+  - [x] NutritionBreakdown Fetcher
+
+- [x] AI Agents
+  - [x] NutritionBreakdown Agent
+
+- [x] Bots
+  - [x] Telegram NutritionBreakdown Bot
 
 
 [![codecov](https://codecov.io/gh/whoam-i-maohw/homelab-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/whoam-i-maohw/homelab-manager)
