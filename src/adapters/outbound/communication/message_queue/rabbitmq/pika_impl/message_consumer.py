@@ -59,12 +59,20 @@ class PikaRabbitMqMessageConsumer(MessageConsumerInterface):
 
                 async with queue.iterator() as queue_iter:
                     async for message in queue_iter:
-                        async with message.process():
-                            callback_function(
-                                deserialization_function(pickle.loads(message.body))
+                        try:
+                            await asyncio.to_thread(
+                                callback_function,
+                                deserialization_function(pickle.loads(message.body)),
                             )
-                            if not consume_forever:
-                                return None
+                            await message.ack()
+                        except Exception as ex:
+                            print(
+                                f" [x] Error consuming message for the reason: [{str(ex)}] ..."
+                            )
+                            await message.nack(requeue=False)
+
+                        if not consume_forever:
+                            return None
         except Exception as ex:
             return ConsumingMessageError(error=str(ex))
 

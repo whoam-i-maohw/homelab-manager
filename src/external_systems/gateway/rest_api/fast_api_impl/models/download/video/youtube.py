@@ -22,6 +22,13 @@ class DownloadVideoRequest:
             frozen=True,
             kw_only=True,
         )
+        initial_tags: list[str] = Field(
+            description="The initial tags of the video if existed",
+            examples=[["productivity", "hustle"]],
+            frozen=True,
+            kw_only=True,
+            default_factory=list,
+        )
 
     class FromTxtFile(BaseModel):
         txt_file_path: str = Field(
