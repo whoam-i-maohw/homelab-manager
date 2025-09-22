@@ -39,3 +39,10 @@ class RepositoryYouTubeVideo:
     uuid: str
     created_at: str
     video: DownloadedYouTubeVideo
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class YouTubeVideoSubtitle:
+    video_url: str
+    subtitle_txt: str
+    language: str

@@ -1,6 +1,10 @@
 from datetime import datetime
+import os
+from tempfile import gettempdir
 from typing import Any
 from yt_dlp import YoutubeDL
+from src.domain.entity.error.video import GettingYouTubeVideoSubtitleError
+from src.domain.entity.video.youtube import YouTubeVideoSubtitle
 from src.domain.entity.error.video import (
     GettingYouTubeVideoInfoError,
     GettingYouTubeVideosFromChannelNameError,
@@ -41,11 +45,11 @@ class YtDlpYouTubeVideoFetcher(YouTubeVideoFetcherInterface):
         self, *, url: str
     ) -> GettingYouTubeVideoInfoError | YouTubeVideoInfo:
         ydl_opts = {"quiet": True, "extract_flat": False}
-        with YoutubeDL(ydl_opts) as yt:
+        with YoutubeDL(ydl_opts) as yt:  # type: ignore
             try:
                 youtube_video_info = yt.extract_info(url=url, download=False)
                 assert youtube_video_info is not None
-                return self.__get_video_info_from_dict(entry=youtube_video_info)
+                return self.__get_video_info_from_dict(entry=youtube_video_info)  # type: ignore
             except Exception as ex:
                 return GettingYouTubeVideoInfoError(error=str(ex))
 
@@ -55,7 +59,7 @@ class YtDlpYouTubeVideoFetcher(YouTubeVideoFetcherInterface):
         channel_url = f"https://www.youtube.com/c/{channel_name}/videos"
         ydl_opts = {"quiet": True, "extract_flat": False, "playlistend": videos_limit}
 
-        with YoutubeDL(ydl_opts) as ydl:
+        with YoutubeDL(ydl_opts) as ydl:  # type: ignore
             try:
                 youtube_video_info = ydl.extract_info(url=channel_url, download=False)
                 assert youtube_video_info is not None
@@ -66,4 +70,39 @@ class YtDlpYouTubeVideoFetcher(YouTubeVideoFetcherInterface):
             except Exception as ex:
                 return GettingYouTubeVideosFromChannelNameError(
                     error=str(ex), channel_name=channel_name
+                )
+
+    def get_subtitle_for_video_from_url(
+        self, *, video_url: str, download_path: str = gettempdir(), language: str = "en"
+    ) -> GettingYouTubeVideoSubtitleError | YouTubeVideoSubtitle:
+        ydl_opts = {
+            "quiet": True,
+            "skip_download": True,
+            "writesubtitles": True,
+            "writeautomaticsub": True,
+            "subtitleslangs": [language],
+            "subtitlesformat": "srt",
+            "paths": dict(home=download_path),
+            "outtmpl": "%(id)s.%(ext)s",
+        }
+        with YoutubeDL(ydl_opts) as ydl:  # type: ignore
+            try:
+                youtube_video_info = ydl.extract_info(url=video_url, download=True)
+                assert youtube_video_info is not None
+                subtitle_file_path = os.path.join(
+                    download_path,
+                    f"{youtube_video_info.get("id", "NA")}.{language}.srt",
+                )
+
+                subtitle_txt: str = ""
+                with open(subtitle_file_path, "r") as subtitle_file:
+                    subtitle_txt = subtitle_file.read().strip()
+
+                os.remove(subtitle_file_path)
+                return YouTubeVideoSubtitle(
+                    video_url=video_url, subtitle_txt=subtitle_txt, language=language
+                )
+            except Exception as ex:
+                return GettingYouTubeVideoSubtitleError(
+                    error=str(ex), video_url=video_url
                 )

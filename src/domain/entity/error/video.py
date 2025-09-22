@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from src.domain.entity.video.youtube import DownloadedYouTubeVideo
 
 
@@ -30,3 +31,9 @@ class GettingYouTubeVideoError:
 class GettingYouTubeVideosFromChannelNameError:
     error: str
     channel_name: str
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class GettingYouTubeVideoSubtitleError:
+    error: str
+    video_url: str
