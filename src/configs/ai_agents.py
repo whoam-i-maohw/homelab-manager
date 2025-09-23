@@ -14,6 +14,12 @@ class AIAgentsConfigs:
         telegram_nutrition_breakdown_bot_token = os.getenv(
             "TELEGRAM_NUTRITION_BOT_TOKEN", ""
         )
+        youtube_analyzer_agent_model = os.getenv(
+            "OLLAMA_YOUTUBE_ANALYZER_AGENT_MODEL", ""
+        )
+        youtube_analyzer_agent_system_prompt = os.getenv(
+            "YOUTUBE_ANALYZER_AGENT_SYSTEM_PROMPT", ""
+        )
 
     @dataclass(frozen=True, slots=True, kw_only=True)
     class Testing:
@@ -23,4 +29,10 @@ class AIAgentsConfigs:
         nutrition_agent_system_prompt = os.getenv("NUTRITION_AGENT_SYSTEM_PROMPT", "")
         telegram_nutrition_breakdown_bot_token = os.getenv(
             "TELEGRAM_NUTRITION_BOT_TOKEN", ""
+        )
+        youtube_analyzer_agent_model = os.getenv(
+            "OLLAMA_YOUTUBE_ANALYZER_AGENT_MODEL", ""
+        )
+        youtube_analyzer_agent_system_prompt = os.getenv(
+            "YOUTUBE_ANALYZER_AGENT_SYSTEM_PROMPT", ""
         )

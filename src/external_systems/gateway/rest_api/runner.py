@@ -1,3 +1,6 @@
+from src.adapters.outbound.ai.video.youtube.insights_analyzer import (
+    YouTubeVideoInsightsAnalyzerAIAgent,
+)
 from src.configs.ai_agents import AIAgentsConfigs
 from src.adapters.outbound.ai.nutrition_breakdown import NutritionBreakdownAIAgent
 from src.services.ai import AIService
@@ -42,7 +45,12 @@ ai_service = AIService(
         ollama_base_url=ai_agents_configs.ollama_base_url,
         ollama_model=ai_agents_configs.nutrition_agent_model,
         agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
-    )
+    ),
+    youtube_video_insights_analyzer_ai_agent=YouTubeVideoInsightsAnalyzerAIAgent(
+        ollama_base_url=ai_agents_configs.ollama_base_url,
+        ollama_model=ai_agents_configs.youtube_analyzer_agent_model,
+        agent_system_prompt=ai_agents_configs.youtube_analyzer_agent_system_prompt,
+    ),
 )
 
 
