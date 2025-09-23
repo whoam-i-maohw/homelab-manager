@@ -1,7 +1,6 @@
 import base64
 import json
 from pydantic_ai import Agent, BinaryContent
-from pydantic_ai.messages import DocumentMediaType, UserContent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.ollama import OllamaProvider
 from src.domain.entity.error.ai import AIAgentRunningError
