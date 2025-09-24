@@ -85,18 +85,19 @@ class NutritionBreakdownAIAgent(GenericAIAgentInterface[NutritionBreakdown]):
                         "give me the nutrition breakdown for what's in the image, ",
                         "Response only in JSON format of the nutrition breakdown "
                         "of what's in the image with those keys inside the JSON Response, "
-                        "summary (what's actually inside the meal), calories, protein, "
-                        "carbohydrates, fiber, fats, saturated fat, sugar and sodium, "
-                        "note that, "
-                        "calories in kcal, "
-                        "protein in grams, "
-                        "carbohydrates in grams, "
-                        "fiber in grams, "
-                        "fats in grams, "
-                        "saturated_fat in grams, "
-                        "sugar in grams, "
-                        "sodium in grams."
-                        "So write the units in the values of the JSON response always.",
+                        """
+                        {
+                            "summary": "...",
+                            "calories": "...",
+                            "protein": "...",
+                            "carbohydrates": "...",
+                            "fiber": "...",
+                            "fats": "...",
+                            "saturated_fat": "...",
+                            "sodium": "...",
+                            "sugar": "..."
+                        }
+                        """,
                         image_url,
                     ]
                 )
@@ -113,16 +114,7 @@ class NutritionBreakdownAIAgent(GenericAIAgentInterface[NutritionBreakdown]):
                         "give me the nutrition breakdown for what's in the image, ",
                         "Response in a human readable format, "
                         "summary (what's actually inside the meal), calories, protein, "
-                        "carbohydrates, fiber, fats, saturated fat, sugar and sodium, "
-                        "note that, "
-                        "calories in kcal, "
-                        "protein in grams, "
-                        "carbohydrates in grams, "
-                        "fiber in grams, "
-                        "fats in grams, "
-                        "saturated_fat in grams, "
-                        "sugar in grams, "
-                        "sodium in grams.",
+                        "carbohydrates, fiber, fats, saturated fat, sugar and sodium, ",
                         image_url,
                     ]
                 )

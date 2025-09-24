@@ -1,6 +1,5 @@
-import base64
 import json
-from pydantic_ai import Agent, BinaryContent
+from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.ollama import OllamaProvider
 from src.domain.entity.error.ai import AIAgentRunningError
@@ -25,11 +24,6 @@ class YouTubeVideoInsightsAnalyzerAIAgent(
         self.__ollama_model = ollama_model
         self.__agent_system_prompt = agent_system_prompt
 
-    def __encode_text_file_as_data_uri(self, *, txt: str) -> str:
-        b64 = txt.encode().decode("utf-8")
-        mime_type = "text/plain"
-        return f"data:{mime_type};base64,{b64}"
-
     def run_agent(
         self,
         *,
@@ -51,18 +45,15 @@ class YouTubeVideoInsightsAnalyzerAIAgent(
 
             if response_in_json:
                 result = agent.run_sync(
-                    [
-                        f"{initial_prompt}, This is a file containing a YouTube video transcription,"
-                        "- Summarize it in meaningful sentences."
-                        "- Extract the main wisdom/insights."
-                        "- Generate a list of the most relevant 10-20 topic tags."
-                        "Respond in JSON:"
-                        "{{'summary': '...', 'insights': ['...', '...'], 'tags': ['...', '...']}}",
-                        BinaryContent(
-                            data=video_subtitle_txt.encode(),
-                            media_type="text/plain",
-                        ),
-                    ]
+                    f"{initial_prompt}, This is a YouTube video transcription,"
+                    "---"
+                    f"{video_subtitle_txt}"
+                    "---"
+                    "- Summarize it in meaningful sentences."
+                    "- Extract the main wisdom/insights."
+                    "- Generate a list of the most relevant 20-50 topic tags."
+                    "Respond in JSON:"
+                    "{{'summary': '...', 'insights': ['...', '...'], 'tags': ['...', '...']}}",
                 )
                 return YouTubeVideoInsightsAnalysis(
                     **json.loads(
@@ -71,11 +62,13 @@ class YouTubeVideoInsightsAnalyzerAIAgent(
                 )
             else:
                 result = agent.run_sync(
-                    f"{initial_prompt}, This is a transcription of a YouTube video,"
+                    f"{initial_prompt}, This is a YouTube video transcription,"
+                    "---"
                     f"{video_subtitle_txt}"
+                    "---"
                     "- Summarize it in meaningful sentences."
                     "- Extract the main wisdom/insights."
-                    "- Generate a list of the most relevant 10-20 topic tags."
+                    "- Generate a list of the most relevant 20-50 topic tags."
                 )
                 return result.output
         except Exception as ex:

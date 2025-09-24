@@ -6,6 +6,9 @@ from src.services.ai import AIService
 from src.domain.entity.commands.video.youtube.download_youtube_video_from_url_command import (
     DownloadYouTubeVideoFromUrlCommand,
 )
+from src.adapters.outbound.ai.video.youtube.insights_analyzer import (
+    YouTubeVideoInsightsAnalyzerAIAgent,
+)
 from src.external_systems.gateway.rest_api.fast_api_impl.models.download.video.youtube import (
     DownloadVideoRequest,
     DownloadVideoResponse,
@@ -50,7 +53,12 @@ def fastapi_testing_client() -> Generator[TestClient, Any, None]:
                 agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
                 ollama_base_url=ai_agents_configs.ollama_base_url,
                 ollama_model=ai_agents_configs.nutrition_agent_model,
-            )
+            ),
+            youtube_video_insights_analyzer_ai_agent=YouTubeVideoInsightsAnalyzerAIAgent(
+                ollama_base_url=ai_agents_configs.ollama_base_url,
+                ollama_model=ai_agents_configs.youtube_analyzer_agent_model,
+                agent_system_prompt=ai_agents_configs.youtube_analyzer_agent_system_prompt,
+            ),
         )
 
         app = FastApiGateWay(
@@ -85,7 +93,12 @@ def fastapi_testing_client_with_wrong_rabbitmq_connection() -> (
                 agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
                 ollama_base_url=ai_agents_configs.ollama_base_url,
                 ollama_model=ai_agents_configs.nutrition_agent_model,
-            )
+            ),
+            youtube_video_insights_analyzer_ai_agent=YouTubeVideoInsightsAnalyzerAIAgent(
+                ollama_base_url=ai_agents_configs.ollama_base_url,
+                ollama_model=ai_agents_configs.youtube_analyzer_agent_model,
+                agent_system_prompt=ai_agents_configs.youtube_analyzer_agent_system_prompt,
+            ),
         )
 
         ai_agents_configs = AIAgentsConfigs.Testing()
@@ -94,7 +107,12 @@ def fastapi_testing_client_with_wrong_rabbitmq_connection() -> (
                 agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
                 ollama_base_url=ai_agents_configs.ollama_base_url,
                 ollama_model=ai_agents_configs.nutrition_agent_model,
-            )
+            ),
+            youtube_video_insights_analyzer_ai_agent=YouTubeVideoInsightsAnalyzerAIAgent(
+                ollama_base_url=ai_agents_configs.ollama_base_url,
+                ollama_model=ai_agents_configs.youtube_analyzer_agent_model,
+                agent_system_prompt=ai_agents_configs.youtube_analyzer_agent_system_prompt,
+            ),
         )
 
         app = FastApiGateWay(

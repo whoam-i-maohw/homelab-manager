@@ -15,7 +15,7 @@ update: ## Update the project dependencies
 
 lint: ## Lint the project
 	@echo "Linting the project"
-	@poetry run ruff check src --config ruff.toml
+	@poetry run ruff check src --config ruff.toml --fix
 
 test-coverage: lint ## Test-Coverage the project
 	@echo "Running test-coverage for the project ..."

@@ -7,6 +7,9 @@ from src.external_systems.gateway.rest_api.fast_api_impl.models.ai.nutrition_bre
     NutritionBreakdownRequest,
     NutritionBreakdownResponse,
 )
+from src.adapters.outbound.ai.video.youtube.insights_analyzer import (
+    YouTubeVideoInsightsAnalyzerAIAgent,
+)
 from src.adapters.outbound.ai.nutrition_breakdown import NutritionBreakdownAIAgent
 from src.configs.ai_agents import AIAgentsConfigs
 from src.services.ai import AIService
@@ -51,7 +54,12 @@ def fastapi_testing_client() -> Generator[TestClient, Any, None]:
                 agent_system_prompt=ai_agents_configs.nutrition_agent_system_prompt,
                 ollama_base_url=ai_agents_configs.ollama_base_url,
                 ollama_model=ai_agents_configs.nutrition_agent_model,
-            )
+            ),
+            youtube_video_insights_analyzer_ai_agent=YouTubeVideoInsightsAnalyzerAIAgent(
+                ollama_base_url=ai_agents_configs.ollama_base_url,
+                ollama_model=ai_agents_configs.youtube_analyzer_agent_model,
+                agent_system_prompt=ai_agents_configs.youtube_analyzer_agent_system_prompt,
+            ),
         )
 
         app = FastApiGateWay(
