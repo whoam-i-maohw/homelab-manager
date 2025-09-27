@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import re
+import subprocess
 from typing import Any, Callable
 from yt_dlp import YoutubeDL
 from src.ports.inbound.video.youtube.downloader import YouTubeVideoDownloaderInterface
@@ -15,6 +16,13 @@ from src.domain.entity.video.youtube import DownloadedYouTubeVideo
 class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
     def __init__(self) -> None:
         pass
+
+    def __is_x11_running(self) -> bool:
+        try:
+            output = subprocess.check_output(["pgrep", "-x", "Xorg"])
+            return bool(output.strip())
+        except subprocess.CalledProcessError:
+            return False
 
     def download_from_url(
         self,
@@ -87,6 +95,10 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
 
         if cookies_file_path is not None:
             download_options.update(dict(cookiefile=cookies_file_path))
+        if self.__is_x11_running():
+            download_options.update(
+                dict(cookiesfrombrowser=(os.getenv("BROWSER", "firefox"),))
+            )
 
         with YoutubeDL(download_options) as yt:
             try:
