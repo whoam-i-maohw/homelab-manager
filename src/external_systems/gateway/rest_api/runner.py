@@ -1,3 +1,5 @@
+from src.configs.sqlite import SqliteDatabaseConfigs
+from src.services.video.youtube import YouTubeVideoService
 from src.adapters.outbound.ai.video.youtube.insights_analyzer import (
     YouTubeVideoInsightsAnalyzerAIAgent,
 )
@@ -10,6 +12,13 @@ from src.external_systems.gateway.rest_api.fast_api_impl import FastApiGateWay
 from src.adapters.outbound.communication.message_queue.rabbitmq.pika_impl.message_producer import (
     PikaRabbitMqMessageProducer,
 )
+from src.adapters.outbound.video.youtube.repository.sqlite.pony_impl import (
+    SqlitePonyYouTubeVideoRepository,
+)
+from src.adapters.inbound.video.youtube.downloader.yt_dlp import (
+    YtDlpYouTubeVideoDownloader,
+)
+from src.adapters.inbound.video.youtube.fetcher.yt_dlp import YtDlpYouTubeVideoFetcher
 from src.adapters.outbound.communication.message_queue.rabbitmq.pika_impl.message_consumer import (
     PikaRabbitMqMessageConsumer,
 )
@@ -20,6 +29,7 @@ nest_asyncio.apply()
 # TODO maybe making this dependencies in a better way (Data Class maybe?) 😁
 
 rabbitmq_configs = RabbitMQConfigs.Production()
+sqlite_configs = SqliteDatabaseConfigs.Production()
 
 message_producer = PikaRabbitMqMessageProducer(
     rabbitmq_host=rabbitmq_configs.host,
@@ -53,7 +63,17 @@ ai_service = AIService(
     ),
 )
 
+youtube_video_service = YouTubeVideoService(
+    youtube_video_downloader=YtDlpYouTubeVideoDownloader(),
+    youtube_video_fetcher=YtDlpYouTubeVideoFetcher(),
+    youtube_video_repository=SqlitePonyYouTubeVideoRepository(
+        database_path=sqlite_configs.database_path
+    ),
+)
+
 
 app = FastApiGateWay(
-    message_queue_service=message_queue_service, ai_service=ai_service
+    message_queue_service=message_queue_service,
+    ai_service=ai_service,
+    youtube_video_service=youtube_video_service,
 ).get_app()

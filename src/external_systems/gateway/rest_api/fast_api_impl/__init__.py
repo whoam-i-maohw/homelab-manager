@@ -2,6 +2,10 @@ from fastapi import APIRouter, FastAPI
 from importlib.metadata import version
 
 from fastapi_mcp import FastApiMCP
+from src.services.video.youtube import YouTubeVideoService
+from src.external_systems.gateway.rest_api.fast_api_impl.routers.ai.youtube_analyzer import (
+    get_youtube_analyzer_router,
+)
 from src.services.ai import AIService
 from src.external_systems.gateway.rest_api.fast_api_impl.routers.ai.nutrition_breakdown import (
     get_nutrition_breakdown_router,
@@ -17,9 +21,11 @@ class FastApiGateWay:
         self,
         *,
         message_queue_service: MessageQueueCommunicationService,
+        youtube_video_service: YouTubeVideoService,
         ai_service: AIService,
     ) -> None:
         self.__message_queue_service = message_queue_service
+        self.__youtube_video_service = youtube_video_service
         self.__ai_service = ai_service
         self.__current_api_version: int = 1
         self.__base_api: str = f"/api/v{self.__current_api_version}"
@@ -34,6 +40,10 @@ class FastApiGateWay:
                 message_queue_service=self.__message_queue_service
             ),
             get_nutrition_breakdown_router(ai_service=self.__ai_service),
+            get_youtube_analyzer_router(
+                ai_service=self.__ai_service,
+                youtube_video_service=self.__youtube_video_service,
+            ),
         ]
 
         for router in routers:
@@ -45,6 +55,7 @@ class FastApiGateWay:
                 "download_youtube_video_from_url_to_channel_name_dir",
                 "download_youtube_videos_from_txt_file_to_channel_name_dir",
                 "get_nutrition_breakdown_from_image",
+                "get_youtube_video_analysis_from_url",
             ],
             describe_all_responses=True,
             describe_full_response_schema=True,

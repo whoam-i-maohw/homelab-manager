@@ -1,5 +1,7 @@
 import os
 from typing import Any, Callable
+from src.domain.entity.error.video import GettingYouTubeVideoSubtitleError
+from src.domain.entity.video.youtube import YouTubeVideoSubtitle
 from src.ports.inbound.video.youtube.fetcher import YouTubeVideoFetcherInterface
 from src.ports.inbound.video.youtube.downloader import YouTubeVideoDownloaderInterface
 from src.domain.entity.error.video import (
@@ -41,6 +43,13 @@ class YouTubeVideoService:
         self, *, url: str
     ) -> GettingYouTubeVideoInfoError | YouTubeVideoInfo:
         return self.__youtube_video_fetcher.get_video_info_from_url(url=url)
+
+    def get_youtube_video_transcription_for_url(
+        self, *, video_url: str
+    ) -> GettingYouTubeVideoSubtitleError | YouTubeVideoSubtitle:
+        return self.__youtube_video_fetcher.get_subtitle_for_video_from_url(
+            video_url=video_url
+        )
 
     def get_latest_video_from_channel(
         self, *, channel_name: str, videos_limit: int = 3

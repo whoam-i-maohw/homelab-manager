@@ -50,9 +50,9 @@ class YouTubeVideoInsightsAnalyzerAIAgent(
                     f"{video_subtitle_txt}"
                     "---"
                     "- Summarize it in meaningful sentences."
-                    "- Extract the main wisdom/insights."
-                    "- Generate a list of the most relevant 20-50 topic tags."
-                    "Respond in JSON:"
+                    "- Extract a list of the main wisdom/insights."
+                    "- Generate a list of 20-50 topic tags."
+                    "Respond should be exactly in this JSON format"
                     "{{'summary': '...', 'insights': ['...', '...'], 'tags': ['...', '...']}}",
                 )
                 return YouTubeVideoInsightsAnalysis(
@@ -68,7 +68,7 @@ class YouTubeVideoInsightsAnalyzerAIAgent(
                     "---"
                     "- Summarize it in meaningful sentences."
                     "- Extract the main wisdom/insights."
-                    "- Generate a list of the most relevant 20-50 topic tags."
+                    "- Generate a list of 20-50 topic tags."
                 )
                 return result.output
         except Exception as ex:
