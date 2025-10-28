@@ -1,9 +1,12 @@
 from datetime import datetime
 import os
 import re
+import time
+import random
 import subprocess
 from typing import Any, Callable
 from yt_dlp import YoutubeDL
+
 from src.ports.inbound.video.youtube.downloader import YouTubeVideoDownloaderInterface
 from src.domain.entity.error.video import DownloadingYouTubeVideoError
 from src.domain.entity.video.download_status import (
@@ -14,8 +17,12 @@ from src.domain.entity.video.youtube import DownloadedYouTubeVideo
 
 
 class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
-    def __init__(self) -> None:
-        pass
+    def __init__(
+        self, *, max_retries: int = 5, auto_update: bool = True, use_poetry: bool = True
+    ) -> None:
+        self.max_retries = max_retries
+        self.auto_update = auto_update
+        self.use_poetry = use_poetry
 
     def __is_x11_running(self) -> bool:
         try:
@@ -23,6 +30,33 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
             return bool(output.strip())
         except subprocess.CalledProcessError:
             return False
+
+    def __update_yt_dlp(self, nightly: bool = False) -> None:
+        if not self.auto_update:
+            return
+        try:
+            cmd = (
+                ["poetry", "update", "yt-dlp"]
+                if self.use_poetry
+                else ["yt-dlp", "--update-to", "nightly" if nightly else "-U"]
+            )
+            subprocess.run(
+                cmd, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+        except Exception:
+            pass
+
+    def __is_403(self, err_msg: str) -> bool:
+        return "HTTP Error 403" in err_msg or "Forbidden" in err_msg
+
+    def __build_format(self, resolution: int) -> str:
+        # Smart adaptive format selector
+        return (
+            f"bv*[height={resolution}]+ba/"  # exact match
+            f"bv*[height<={resolution}]+ba/"  # nearest lower
+            f"bv*[height>={resolution}]+ba/"  # nearest higher
+            "bestvideo+bestaudio/best"  # fallback
+        )
 
     def download_from_url(
         self,
@@ -35,23 +69,27 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
         on_progress_callback: Callable[[OnProgressDownloadingVideoStatus], Any],
         on_complete_callback: Callable[[OnCompleteDownloadingVideoStatus], Any],
     ) -> DownloadingYouTubeVideoError | DownloadedYouTubeVideo:
+
         if not os.path.exists(download_path):
             return DownloadingYouTubeVideoError(
-                error=f"This download path [{download_path}] doesn't exist !",
+                error=f"This download path [{download_path}] doesn't exist!",
                 url=url,
                 download_path=download_path,
                 resolution=resolution,
             )
 
-        def __on_progress_hook(status_obj: dict[str, Any]) -> None:
-            if status_obj.get("status", "NA") == "downloading":
-                return on_progress_callback(
+        def __progress_hook(status_obj: dict[str, Any]) -> None:
+            status = status_obj.get("status", "")
+            info = status_obj.get("info_dict", {})
+
+            if status == "downloading":
+                on_progress_callback(
                     OnProgressDownloadingVideoStatus(
                         url=url,
-                        title=status_obj.get("info_dict", {}).get("fulltitle", "NA"),
+                        title=info.get("fulltitle", "NA"),
                         height=resolution,
-                        width=status_obj.get("info_dict", {}).get("width", "NA"),
-                        size_in_bytes=status_obj.get("total_bytes", "NA"),
+                        width=info.get("width", "NA"),
+                        size_in_bytes=status_obj.get("total_bytes", 0),
                         downloaded_ratio=re.sub(
                             r"\x1b\[[0-9;]*m", "", status_obj.get("_percent_str", "NA")
                         ).strip(),
@@ -63,96 +101,102 @@ class YtDlpYouTubeVideoDownloader(YouTubeVideoDownloaderInterface):
                         ).strip(),
                     )
                 )
-            elif status_obj.get("status", "NA") == "finished":
-                video_title = status_obj.get("info_dict", {}).get("fulltitle", "NA")
-                return on_complete_callback(
+            elif status == "finished":
+                title = info.get("fulltitle", "NA")
+                ext = status_obj.get("ext", "mp4")
+                dst = os.path.join(download_path, f"{title}.{ext}")
+                on_complete_callback(
                     OnCompleteDownloadingVideoStatus(
                         url=url,
-                        title=video_title,
-                        downloaded_file_dst=os.path.join(
-                            download_path,
-                            video_title + "." + status_obj.get("ext", "NA"),
-                        ),
+                        title=title or info.get("fulltitle", "NA"),
+                        downloaded_file_dst=dst,
                     )
                 )
 
-        download_options: dict[str, Any] = dict(
-            format=(
-                f"bv*[height={resolution}]+ba/"  # 1️⃣ exact match
-                f"bv*[height>={resolution}]+ba/"  # 2️⃣ nearest higher
-                f"bv*[height<={resolution}]+ba/"  # 3️⃣ nearest lower
-                "best"  # 4️⃣ default (best) -- will be used for SABR streaming clients
-            ),
-            progress_hooks=[__on_progress_hook],
-            postprocessor_hooks=[],
-            paths=dict(home=download_path),
-            outtmpl="%(title)s.%(ext)s",
-            merge_output_format="mkv",
-            noprogress=True,
-            consoletitle=True,
-            extractor_retries=0,
-        )
+        # --- yt-dlp config
+        options = {
+            "format": self.__build_format(resolution),
+            "merge_output_format": "mkv",
+            "outtmpl": os.path.join(download_path, "%(title)s.%(ext)s"),
+            "noplaylist": False,
+            "ignoreerrors": True,
+            "retries": 5,
+            "fragment_retries": 10,
+            "sleep_interval": 2,
+            "max_sleep_interval": 5,
+            "concurrent_fragment_downloads": 3,
+            "quiet": True,
+            "progress_hooks": [__progress_hook],
+            "noprogress": True,
+            "nooverwrites": True,
+            "download_archive": os.path.join(download_path, "archive_file.txt"),
+        }
 
-        if cookies_file_path is not None:
-            download_options.update(dict(cookiefile=cookies_file_path))
-        if self.__is_x11_running():
-            download_options.update(
-                dict(cookiesfrombrowser=(os.getenv("BROWSER", "firefox"),))
-            )
+        if cookies_file_path:
+            options["cookiefile"] = cookies_file_path
+        elif self.__is_x11_running():
+            options["cookiesfrombrowser"] = (os.getenv("BROWSER", "firefox"),)
 
-        with YoutubeDL(download_options) as yt:
+        # --- Main retry loop
+        for attempt in range(1, self.max_retries + 1):
             try:
-                youtube_video_info = yt.extract_info(url=url, download=True)
-                assert youtube_video_info is not None
-                video_title: str = os.path.basename(
-                    youtube_video_info.get("fulltitle", "NA")
+                with YoutubeDL(options) as ydl:
+                    info = ydl.extract_info(url=url, download=True)
+
+                published_date = datetime.fromtimestamp(
+                    info.get("timestamp", datetime.now().timestamp())
                 )
-                published_timestamp: float = float(
-                    youtube_video_info.get("timestamp", datetime.now().timestamp())
-                )
-                published_date: datetime = datetime.fromtimestamp(published_timestamp)
-                fetched_video_average_rating = youtube_video_info.get(
-                    "average_rating", 0.0
-                )
+                rating = info.get("average_rating", 0.0) or 0.0
+                title = info.get("fulltitle", "NA")
+                ext = info.get("ext", "mp4")
+
                 return DownloadedYouTubeVideo(
                     url=url,
-                    title=video_title,
-                    height=youtube_video_info.get("height", "NA"),
-                    width=youtube_video_info.get("width", "NA"),
+                    title=title,
+                    height=info.get("height", "NA"),
+                    width=info.get("width", "NA"),
                     resolution=resolution,
                     download_path=download_path,
-                    downloaded_file=os.path.join(
-                        download_path,
-                        video_title + "." + youtube_video_info.get("ext", "NA"),
-                    ),
-                    duration=youtube_video_info.get("duration_string", "NA"),
+                    downloaded_file=os.path.join(download_path, f"{title}.{ext}"),
+                    duration=info.get("duration_string", "NA"),
                     published_date_str=published_date.isoformat(),
-                    channel_id=youtube_video_info.get("channel_id", "NA"),
-                    channel_name=youtube_video_info.get("channel", "NA"),
-                    channel_url=youtube_video_info.get("channel_url", "NA"),
-                    tags=initial_tags + youtube_video_info.get("tags", []),
-                    thumbnail=youtube_video_info.get("thumbnail", "NA"),
-                    average_rating=(
-                        fetched_video_average_rating
-                        if fetched_video_average_rating is not None
-                        else 0.0
-                    ),
+                    channel_id=info.get("channel_id", "NA"),
+                    channel_name=info.get("channel", "NA"),
+                    channel_url=info.get("channel_url", "NA"),
+                    tags=initial_tags + (info.get("tags", []) or []),
+                    thumbnail=info.get("thumbnail", "NA"),
+                    average_rating=rating,
                 )
+
             except Exception as ex:
-                error_message: str = str(ex)
+                err = str(ex)
 
-                if (
-                    "Video unavailable" in str(ex)
-                    or "is not a valid URL" in str(ex)
-                    or "Unable to download" in str(ex)
-                ):
-                    error_message = f"This url [{url}] doesn't exist !"
-                elif "Failed to extract any player response" in str(ex):
-                    error_message = "There is no internet connectivity !"
+                # 🧩 Handle forbidden/incomplete download
+                if self.__is_403(err) or "too small" in err.lower():
+                    wait = 10 * attempt
+                    print(f"[WARN] 403 or incomplete file, retrying after {wait}s...")
+                    time.sleep(wait)
+                    self.__update_yt_dlp()
+                    if attempt >= 3:
+                        self.__update_yt_dlp(nightly=True)
+                    continue
 
-                return DownloadingYouTubeVideoError(
-                    error=error_message,
-                    download_path=download_path,
-                    resolution=resolution,
-                    url=url,
-                )
+                elif "Temporary failure" in err or "Connection" in err:
+                    print("[WARN] Network issue, retrying...")
+                    time.sleep(random.randint(5, 15))
+                    continue
+
+                else:
+                    return DownloadingYouTubeVideoError(
+                        error=f"Failed: {err}",
+                        url=url,
+                        resolution=resolution,
+                        download_path=download_path,
+                    )
+
+        return DownloadingYouTubeVideoError(
+            error=f"Failed to download [{url}] after {self.max_retries} retries.",
+            url=url,
+            resolution=resolution,
+            download_path=download_path,
+        )
